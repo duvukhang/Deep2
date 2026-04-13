@@ -1,0 +1,9 @@
+# Đường dẫn tuyệt đối đến thư mục chứa data
+path: D:/HK6_BaiTapVeNhan/DoAn/Deep2/HuanLuyen
+
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 4
+names: ['eye_closed', 'eye_open', 'face', 'mouth_open']

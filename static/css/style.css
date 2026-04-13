@@ -1,0 +1,74 @@
+/* Tổng thể bảng điều khiển */
+body {
+    background-color: #0f1215;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-title {
+    color: #00d4ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* Container Video */
+.video-container {
+    position: relative;
+    border: 2px solid #343a40;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    background: #000;
+}
+
+/* Trạng thái cảnh báo */
+.alert-box {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.alert-safe {
+    background: linear-gradient(45deg, #1d976c, #93f9b9);
+    color: #fff;
+}
+
+.alert-danger {
+    background: linear-gradient(45deg, #eb3349, #f45c43);
+    color: #fff;
+    animation: pulse-red 1s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(235, 51, 73, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(235, 51, 73, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(235, 51, 73, 0); }
+}
+
+/* Chỉ số chi tiết */
+.card-stats {
+    background: #1a1f24;
+    border: 1px solid #2d343a;
+    border-radius: 12px;
+}
+
+.stat-value {
+    color: #00d4ff;
+    font-weight: bold;
+}
+
+/* Danh sách trạm nghỉ OSM */
+#rest_stops {
+    list-style: none;
+    padding: 0;
+}
+
+#rest_stops li {
+    background: #252b31;
+    margin-bottom: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 4px solid #00d4ff;
+}

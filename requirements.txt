@@ -1,0 +1,26 @@
+# ===== CORE AI =====
+mediapipe==0.10.14
+numpy==1.26.4
+scipy==1.11.4
+opencv-python==4.9.0.80
+
+# ===== WEB APP =====
+flask==3.0.3
+flask-socketio==5.3.6
+
+# ===== MAP / API =====
+requests==2.31.0
+
+# ===== OPTIONAL (AI nâng cao - YOLO) =====
+torch==2.2.2
+torchvision==0.17.2
+torchaudio==2.2.2
+ultralytics==8.1.0
+
+# ===== DATA / LOG =====
+pandas==2.2.2
+pyyaml==6.0.1
+
+# ===== VISUAL =====
+matplotlib==3.8.4
+tqdm==4.66.4

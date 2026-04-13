@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 6  # Tăng lên 6 class
+names: ['eye_closed', 'eye_open', 'face', 'mouth_open', 'mask', 'sunglasses']
+
+roboflow:
+  workspace: fyp-vvgfo
+  project: drowsiness-detection-4v4ob
+  version: 10
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/fyp-vvgfo/drowsiness-detection-4v4ob/dataset/10
