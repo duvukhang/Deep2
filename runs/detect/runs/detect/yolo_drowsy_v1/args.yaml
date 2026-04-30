@@ -1,6 +1,6 @@
 task: detect
 mode: train
-model: weights/yolo11n.pt
+model: yolo11n.pt
 data: configs/data.yaml
 epochs: 100
 time: null
@@ -10,7 +10,7 @@ imgsz: 640
 save: true
 save_period: -1
 cache: true
-device: '0'
+device: cpu
 workers: 0
 project: runs/detect
 name: yolo_drowsy_v1

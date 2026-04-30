@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-# Khang lưu ý: KHÔNG import chính file này ở đây nữa nhé!
 # Tạm thời comment 2 dòng này lại nếu bạn chưa tạo file, để tránh lỗi ModuleNotFoundError
 # from .attention_fusion import MultiBranchAttention
 # from .temporal_transformer import TemporalEncoder

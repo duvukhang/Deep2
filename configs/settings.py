@@ -1,7 +1,7 @@
 import cv2
 
 # --- Ngưỡng AI (Thresholds) ---
-EAR_THRESHOLD = 0.22        # Dưới mức này coi là nhắm mắt
+EAR_THRESHOLD = 0.18        # Dưới mức này coi là nhắm mắt
 MAR_THRESHOLD = 0.5         # Trên mức này coi là ngáp
 DROWSY_TIME_STEP = 20       # Số lượng frame liên tiếp nhắm mắt để báo động
 POSE_YAW_THRESHOLD = 25     # Độ quay đầu (nhìn sang bên)

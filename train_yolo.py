@@ -10,7 +10,7 @@ def train_spatial_node():
     print(f"👉 Device: {device}")
 
     # ===== PATH =====
-    weights_path = 'weights/yolo11n.pt'
+    weights_path = 'weights/yolo8.pt'
     data_path = 'configs/data.yaml'
 
     # ===== CHECK DATA =====

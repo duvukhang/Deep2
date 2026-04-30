@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ['closed_eye', 'no_yawn', 'open_eye', 'yawn']
+
+roboflow:
+  workspace: kremlin-08t3i
+  project: driver-drowsiness-m73cf
+  version: 1
+  license: MIT
+  url: https://universe.roboflow.com/kremlin-08t3i/driver-drowsiness-m73cf/dataset/1

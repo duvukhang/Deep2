@@ -1,5 +1,5 @@
 # Đường dẫn tuyệt đối đến thư mục chứa data
-path: D:/HK6_BaiTapVeNhan/DoAn/Deep2/HuanLuyen
+path: D:/HK6_BaiTapVeNhan/DoAn/Deep2/driver_drowsiness_Computer_Vision_Model
 
 train: train/images
 val: valid/images
