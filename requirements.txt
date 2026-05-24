@@ -24,3 +24,10 @@ pyyaml==6.0.1
 # ===== VISUAL =====
 matplotlib==3.8.4
 tqdm==4.66.4
+
+flask
+flask-socketio
+opencv-python
+mediapipe
+numpy
+requests

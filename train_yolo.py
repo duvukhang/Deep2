@@ -2,51 +2,53 @@ from ultralytics import YOLO
 import torch
 import os
 
-def train_spatial_node():
-    print("\n🚀 START TRAIN YOLO\n")
-
-    # ===== CHECK DEVICE =====
-    device = 0 if torch.cuda.is_available() else 'cpu'
-    print(f"👉 Device: {device}")
-
-    # ===== PATH =====
-    weights_path = 'weights/yolo8.pt'
-    data_path = 'configs/data.yaml'
-
-    # ===== CHECK DATA =====
+def traint_spatail_node():
+    print("\n Start train yolo v2 (Anti-Overfitting)\n")
+    
+    #== Check Device ==
+    device=0 if torch.cuda.is_available() else 'cpu'
+    print(f"Device: {device}")
+    
+    #== Path ==
+    #Su dung yolo11
+    weights_path = 'weights/yolo11n.pt'
+    data_path='configs/data.yaml'
+    
+    #== Check Data ==
     if not os.path.exists(data_path):
-        raise FileNotFoundError(f"❌ Không tìm thấy file: {data_path}")
+        raise FileNotFoundError(f"Khong tim thay file: {data_path}")
 
-    # ===== CREATE DIR =====
+    #== Create Dir ==
     os.makedirs("weights", exist_ok=True)
-
-    # ===== LOAD MODEL =====
+    
+    #== Load Model ==
     if os.path.exists(weights_path):
-        print(f"✅ Load local weights: {weights_path}")
+        print(f"Load local weights: {weights_path}")
         model = YOLO(weights_path)
     else:
-        print("⬇️ Download yolo11n.pt từ Ultralytics...")
-        model = YOLO('yolo11n.pt')
-
-    # ===== TRAIN =====
-    results = model.train(
+        print("Dowload yolo11n.pt tu Ultralytics...")
+        model=YOLO('yolo11n.pt')
+    
+    #== Train ==
+    results=model.train(
         data=data_path,
         epochs=100,
         imgsz=640,
-        batch=4,
+        batch=8,
         device=device,
-        workers=0,          # 🔥 fix lỗi Windows
+        workers=0,
         project='runs/detect',
-        name='yolo_drowsy_v1',
-        exist_ok=True,      # không lỗi khi trùng tên
-        pretrained=True,
-        verbose=True,
-        cache=True          # tăng tốc load dataset
+        name='yolo_drowsy_v2',
+        
+        #== them chi so chong overfitting ==
+        patience=20,
+        dropout=0.1,
+        degrees=15.0,
+        mosaic=1.0,
+        close_mosaic=10
     )
-
-    print("\n🎯 TRAIN DONE")
-    print("👉 Best weights:", os.path.join('runs/detect/yolo_drowsy_v1', 'weights/best.pt'))
-
-
-if __name__ == "__main__":
-    train_spatial_node()
+    print("\n Hoan tat train yolo!")
+    
+if __name__ == '__main__':
+    traint_spatail_node()
+    

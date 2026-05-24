@@ -1,193 +1,345 @@
-import cv2
-import numpy as np
-import time
-from flask import Flask, render_template, Response
-from flask_socketio import SocketIO
-from threading import Thread, Lock
-import mediapipe as mp
-import winsound
+# app.py
 
+import cv2
+import time
+import platform
+from threading import Thread, Lock
+
+from flask import Flask, render_template, Response, jsonify
+from flask_socketio import SocketIO
+
+import mediapipe as mp
+
+from config import AppConfig, MapConfig
 from services.osm_service import OSMService
+from services.location_service import LocationService
+from services.driver_selector import DriverSelector
+from services.drowsiness_detector import DrowsinessDetector
+
 
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode='threading')
+socketio = SocketIO(app, async_mode="threading", cors_allowed_origins="*")
 
-lock = Lock()
+frame_lock = Lock()
 output_frame = None
 
-osm = OSMService()
+osm_service = OSMService()
+location_service = LocationService()
+driver_selector = DriverSelector()
+drowsiness_detector = DrowsinessDetector()
 
 mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True)
 
-# ===== TĂNG SÁNG TỰ ĐỘNG =====
+face_mesh = mp_face_mesh.FaceMesh(
+    max_num_faces=3,
+    refine_landmarks=True,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
+
+
+def beep_alert():
+    try:
+        if platform.system().lower() == "windows":
+            import winsound
+            winsound.Beep(1200, 350)
+        else:
+            print("\a")
+    except Exception:
+        print("ALERT!")
+
+
 def enhance_frame(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    if np.mean(gray) < 80:
-        frame = cv2.convertScaleAbs(frame, alpha=1.5, beta=40)
+    brightness = gray.mean()
+
+    if brightness < 75:
+        frame = cv2.convertScaleAbs(frame, alpha=1.55, beta=45)
+
     return frame
 
-# ===== EAR =====
-def calculate_EAR(landmarks, w, h):
-    idx = [33,160,158,133,153,144]
-    pts = [(int(landmarks[i].x*w), int(landmarks[i].y*h)) for i in idx]
-    A = np.linalg.norm(np.array(pts[1]) - np.array(pts[5]))
-    B = np.linalg.norm(np.array(pts[2]) - np.array(pts[4]))
-    C = np.linalg.norm(np.array(pts[0]) - np.array(pts[3]))
-    return (A+B)/(2.0*C)
 
-# ===== MAR =====
-def calculate_MAR(landmarks, w, h):
-    pts = [(int(landmarks[i].x*w), int(landmarks[i].y*h)) for i in [13,14,78,308]]
-    return np.linalg.norm(np.array(pts[0])-np.array(pts[1])) / np.linalg.norm(np.array(pts[2])-np.array(pts[3]))
+def draw_driver_roi(frame):
+    h, w, _ = frame.shape
 
-# ===== HEAD POSE =====
-def head_pose(landmarks, h):
-    return int(landmarks[152].y*h) - int(landmarks[1].y*h)
+    config = driver_selector.get_config()
+    active_roi = driver_selector.get_active_roi()
 
-# ===== AI THREAD =====
-def ai_thread():
+    rx1, ry1, rx2, ry2 = driver_selector.denormalize_roi(active_roi, w, h)
+
+    if config["lock_driver"]:
+        color = (255, 255, 0)
+    else:
+        color = (120, 120, 120)
+
+    label = "LOCKED DRIVER ROI" if config["has_custom_roi"] else "DEFAULT DRIVER ROI"
+
+    cv2.rectangle(frame, (rx1, ry1), (rx2, ry2), color, 2)
+
+    cv2.putText(
+        frame,
+        label,
+        (rx1, max(25, ry1 - 8)),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.58,
+        color,
+        2
+    )
+
+
+def draw_state(frame, result, face_count, selected_face_box):
+    h, w, _ = frame.shape
+
+    state = result["state"]
+
+    if state == "DROWSY_CONFIRMED":
+        color = (0, 0, 255)
+        label = "NGU GAT!"
+        cv2.rectangle(frame, (0, 0), (w, h), color, 10)
+
+    elif state == "WARNING_LEVEL_1":
+        color = (0, 165, 255)
+        label = "CANH BAO MET MOI"
+
+    elif state == "WARNING_SUNGLASSES_MODE":
+        color = (0, 165, 255)
+        label = "CANH BAO - KHONG THAY MAT"
+
+    elif state == "SUNGLASSES_MODE":
+        color = (255, 255, 0)
+        label = "CHE DO KINH RAM"
+
+    elif state == "CAMERA_BAD":
+        color = (255, 0, 0)
+        label = "GOC CAMERA KEM"
+
+    elif state == "NO_DRIVER_IN_ROI":
+        color = (180, 180, 180)
+        label = "CHUA THAY TAI XE TRONG VUNG"
+
+    elif state == "NO_FACE":
+        color = (180, 180, 180)
+        label = "KHONG THAY MAT"
+
+    else:
+        color = (0, 255, 0)
+        label = "TINH TAO"
+
+    cv2.putText(frame, label, (30, 55), cv2.FONT_HERSHEY_SIMPLEX, 1.0, color, 3)
+
+    if selected_face_box is not None:
+        x1, y1, x2, y2 = selected_face_box
+
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 180, 255), 2)
+
+        cv2.putText(
+            frame,
+            "DRIVER",
+            (x1, max(30, y1 - 10)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (0, 180, 255),
+            2
+        )
+
+    cv2.putText(frame, f"EAR: {result['ear']:.2f}", (10, h - 180), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (0, 255, 0), 2)
+    cv2.putText(frame, f"MAR: {result['mar']:.2f}", (10, h - 150), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (255, 0, 255), 2)
+    cv2.putText(frame, f"Pose: {result['head_pose']:.2f}", (10, h - 120), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (255, 255, 0), 2)
+    cv2.putText(frame, f"Score: {result['drowsy_score']:.1f}", (10, h - 90), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (0, 255, 255), 2)
+    cv2.putText(frame, f"Mode: {result['detection_mode']}", (10, h - 60), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (255, 255, 255), 2)
+    cv2.putText(frame, f"Faces: {face_count} Conf: {result['confidence']:.2f}", (10, h - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (255, 255, 255), 2)
+
+
+def camera_loop():
     global output_frame
-    cap = cv2.VideoCapture(0)
 
-    ear_buffer = []
-    base_ear = None
-    calibrate = 30
-
-    eye_closed_start = None
-    yawn_start = None
-    drowsy_score = 0
-
-    last_alert = 0
+    cap = cv2.VideoCapture(AppConfig.CAMERA_INDEX)
 
     while True:
         ret, frame = cap.read()
+
         if not ret:
+            time.sleep(0.05)
             continue
 
         frame = enhance_frame(frame)
 
         h, w, _ = frame.shape
+        draw_driver_roi(frame)
+
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = face_mesh.process(rgb)
+        face_results = face_mesh.process(rgb)
 
-        ear, mar, pose = 0.3, 0.1, 0
-        eye_visible = True
+        face_count = 0
+        selected_face_box = None
+        selected_landmarks = None
 
-        if results.multi_face_landmarks:
-            lm = results.multi_face_landmarks[0].landmark
+        if face_results.multi_face_landmarks:
+            face_count = len(face_results.multi_face_landmarks)
 
-            ear = calculate_EAR(lm, w, h)
-            mar = calculate_MAR(lm, w, h)
-            pose = head_pose(lm, h)
+            selected = driver_selector.select_driver_face(
+                face_results.multi_face_landmarks,
+                w,
+                h
+            )
 
-            if ear < 0.05:
-                eye_visible = False
+            if selected:
+                selected_face_box = selected["box"]
+                selected_landmarks = selected["face"].landmark
 
-        # ===== SMOOTH EAR =====
-        ear_buffer.append(ear)
-        if len(ear_buffer) > 10:
-            ear_buffer.pop(0)
+        result = drowsiness_detector.update(
+            face_count=face_count,
+            selected_face_box=selected_face_box,
+            landmarks=selected_landmarks,
+            frame_w=w,
+            frame_h=h
+        )
 
-        avg_ear = np.mean(ear_buffer)
+        draw_state(frame, result, face_count, selected_face_box)
 
-        # ===== CALIBRATE =====
-        if base_ear is None and len(ear_buffer) >= calibrate:
-            base_ear = np.mean(ear_buffer)
+        if result["is_drowsy"] and result["can_alert"]:
+            Thread(target=beep_alert, daemon=True).start()
+            drowsiness_detector.mark_alerted()
 
-        threshold = base_ear*0.75 if base_ear else 0.22
-
-        # ===== NHẮM MẮT =====
-        if avg_ear < threshold:
-            if eye_closed_start is None:
-                eye_closed_start = time.time()
-        else:
-            eye_closed_start = None
-
-        eye_closed_duration = 0
-        if eye_closed_start:
-            eye_closed_duration = time.time() - eye_closed_start
-
-        # ===== NGÁP =====
-        if mar > 0.7:
-            if yawn_start is None:
-                yawn_start = time.time()
-        else:
-            yawn_start = None
-
-        yawn_duration = 0
-        if yawn_start:
-            yawn_duration = time.time() - yawn_start
-
-        # ===== AI SCORE =====
-        if eye_closed_duration > 2:
-            drowsy_score += 2
-
-        if yawn_duration > 1.5:
-            drowsy_score += 1.5
-
-        if pose > 120:
-            drowsy_score += 2
-
-        # giảm nếu tỉnh
-        if eye_closed_duration < 1 and yawn_duration < 1 and pose < 100:
-            drowsy_score -= 1
-
-        drowsy_score = max(0, min(drowsy_score, 10))
-
-        is_drowsy = drowsy_score >= 5
-
-        # ===== CẢNH BÁO =====
-        now = time.time()
-        if is_drowsy and now - last_alert > 2:
-            winsound.Beep(1000, 300)
-            last_alert = now
-
-        # ===== UI =====
-        if is_drowsy:
-            cv2.rectangle(frame,(0,0),(w,h),(0,0,255),10)
-            cv2.putText(frame,"NGU GAT!",(50,100),
-                        cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),3)
-
-        cv2.putText(frame,f"EAR:{avg_ear:.2f}",(10,30),0,0.7,(0,255,0),2)
-        cv2.putText(frame,f"Score:{drowsy_score:.1f}",(10,60),0,0.7,(0,255,255),2)
-        cv2.putText(frame,f"Eye:{eye_closed_duration:.1f}s",(10,90),0,0.7,(255,255,0),2)
-        cv2.putText(frame,f"Yawn:{yawn_duration:.1f}s",(10,120),0,0.7,(255,0,255),2)
-
-        with lock:
+        with frame_lock:
             output_frame = frame.copy()
 
-        socketio.emit('update_data',{
-            'ear': avg_ear,
-            'head_pose': pose,
-            'eye_visible': eye_visible,
-            'is_drowsy': is_drowsy
+        driver_config = driver_selector.get_config()
+
+        socketio.emit("update_data", {
+            **result,
+            "face_count": face_count,
+            "driver_side": driver_config["side"],
+            "driver_lock": driver_config["lock_driver"],
+            "driver_custom_roi": driver_config["has_custom_roi"],
+            "driver_selected": selected_face_box is not None
         })
 
-# ===== ROUTES =====
-@app.route('/')
-def index():
-    return render_template('index.html')
+        time.sleep(0.03)
 
-@app.route('/video_feed')
-def video():
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/video_feed")
+def video_feed():
     def gen():
+        global output_frame
+
         while True:
             if output_frame is None:
+                time.sleep(0.05)
                 continue
-            with lock:
-                _, buf = cv2.imencode('.jpg', output_frame)
-            yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' +
-                   bytearray(buf) + b'\r\n')
-    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# ===== MAP =====
-@socketio.on('find_stops_request')
+            with frame_lock:
+                success, buffer = cv2.imencode(".jpg", output_frame)
+
+            if not success:
+                continue
+
+            frame_bytes = buffer.tobytes()
+
+            yield (
+                b"--frame\r\n"
+                b"Content-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n"
+            )
+
+    return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=frame")
+
+
+@app.route("/api/location")
+def get_location_by_ip():
+    location = location_service.get_location_by_ip()
+
+    if location is None:
+        return jsonify({
+            "success": False,
+            "message": "Không lấy được vị trí bằng IP"
+        }), 500
+
+    return jsonify({
+        "success": True,
+        "location": location
+    })
+
+
+@socketio.on("find_stops_request")
 def find_stops(data):
-    stops = osm.find_nearest_rest_stop(data['lat'], data['lon'])
-    socketio.emit('rest_stops_data', {'stops': stops})
+    try:
+        lat = float(data.get("lat"))
+        lon = float(data.get("lon"))
+        radius = int(data.get("radius", MapConfig.DEFAULT_RADIUS))
 
-# ===== MAIN =====
-if __name__ == '__main__':
-    Thread(target=ai_thread, daemon=True).start()
-    socketio.run(app, host='0.0.0.0', port=5000)
+        stops = osm_service.find_nearest_rest_stop(lat, lon, radius)
+
+        socketio.emit("rest_stops_data", {
+            "success": True,
+            "lat": lat,
+            "lon": lon,
+            "stops": stops
+        })
+
+    except Exception as e:
+        socketio.emit("rest_stops_data", {
+            "success": False,
+            "message": str(e),
+            "stops": []
+        })
+
+
+@socketio.on("update_driver_config")
+def update_driver_config(data):
+    side = data.get("side")
+    lock_driver = data.get("lock_driver")
+
+    config = driver_selector.update_config(
+        side=side,
+        lock_driver=lock_driver
+    )
+
+    socketio.emit("driver_config_updated", {
+        "success": True,
+        "message": "Đã cập nhật vùng ghế lái.",
+        "side": config["side"],
+        "lock_driver": config["lock_driver"],
+        "custom_roi": config["has_custom_roi"]
+    })
+
+
+@socketio.on("lock_current_driver")
+def lock_current_driver():
+    result = driver_selector.lock_current_driver()
+
+    socketio.emit("driver_config_updated", {
+        "success": result["success"],
+        "message": result["message"],
+        "side": result["side"],
+        "lock_driver": result["lock_driver"],
+        "custom_roi": result["has_custom_roi"]
+    })
+
+
+@socketio.on("unlock_driver_roi")
+def unlock_driver_roi():
+    result = driver_selector.unlock_driver_roi()
+
+    socketio.emit("driver_config_updated", {
+        "success": result["success"],
+        "message": result["message"],
+        "side": result["side"],
+        "lock_driver": result["lock_driver"],
+        "custom_roi": result["has_custom_roi"]
+    })
+
+
+if __name__ == "__main__":
+    Thread(target=camera_loop, daemon=True).start()
+
+    socketio.run(
+        app,
+        host=AppConfig.HOST,
+        port=AppConfig.PORT,
+        debug=AppConfig.DEBUG
+    )
