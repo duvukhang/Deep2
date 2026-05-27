@@ -177,8 +177,13 @@ def ai_detection_thread():
             if not has_suggested_rest:
                 print("--- Kích hoạt tìm trạm nghỉ tự động qua IP ---")
                 lat, lon = get_location_by_ip()
-                stops = osm.find_nearest_rest_stop(lat, lon)
-                socketio.emit('rest_stops_data', {'stops': stops, 'auto_trigger': True})
+                result = osm.find_rest_stop_auto_radius(lat, lon)
+                socketio.emit('rest_stops_data', {
+                    'success': True,
+                    'stops': result['stops'],
+                    'radius_used': result['radius_used'],
+                    'auto_trigger': True
+                })
                 has_suggested_rest = True
         else:
             awake_frames_count += 1
@@ -228,8 +233,22 @@ def video_feed():
 
 @socketio.on('find_stops_request')
 def handle_osm_request(data):
-    stops = osm.find_nearest_rest_stop(data['lat'], data['lon'])
-    socketio.emit('rest_stops_data', {'stops': stops})
+    radius = int(data.get('radius', 60000))
+    heading = data.get('heading')
+    if heading is not None:
+        heading = float(heading)
+
+    result = osm.find_rest_stop_auto_radius(
+        data['lat'],
+        data['lon'],
+        radius,
+        heading
+    )
+    socketio.emit('rest_stops_data', {
+        'success': True,
+        'stops': result['stops'],
+        'radius_used': result['radius_used']
+    })
 
 if __name__ == '__main__':
     t = Thread(target=ai_detection_thread)

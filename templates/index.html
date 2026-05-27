@@ -1,246 +1,251 @@
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <title>Hệ thống giám sát tài xế</title>
+    <title>Hệ thống giám sát tài xế</title>
 
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-            rel="stylesheet" />
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    />
 
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
 
-        <style>
-    body {
-      background: #0f172a;
-      color: #e5e7eb;
-      font-family: Arial, sans-serif;
-    }
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    />
+</head>
 
-    .page-title {
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
+<body>
+    <div class="app-wrapper">
+        <div class="container-fluid px-4 py-4">
+            <div class="app-header">
+                <div>
+                    <h1>Hệ thống giám sát & cảnh báo ngủ gật</h1>
+                    <p>
+                        Theo dõi tài xế theo thời gian thực, phát hiện dấu hiệu
+                        mệt mỏi và gợi ý điểm nghỉ gần nhất.
+                    </p>
+                </div>
 
-    .card-custom {
-      background: #111827;
-      border: 1px solid #1f2937;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-      padding: 18px;
-      margin-bottom: 18px;
-    }
+                <div class="header-badge">
+                    Realtime AI Monitoring
+                </div>
+            </div>
 
-    .video-frame {
-      width: 100%;
-      border-radius: 14px;
-      border: 3px solid #334155;
-      background: #000;
-    }
+            <div class="row g-4">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="dashboard-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h5>Camera giám sát tài xế</h5>
+                                <span>Luồng hình ảnh realtime từ webcam</span>
+                            </div>
+                        </div>
 
-    .alert-box {
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 22px;
-      padding: 14px;
-    }
-
-    .metric {
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid #1f2937;
-      padding: 8px 0;
-      font-size: 15px;
-    }
-
-    .metric span:last-child {
-      font-weight: bold;
-      color: #38bdf8;
-    }
-
-    #map {
-      height: 360px;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 2px solid #334155;
-    }
-
-    #rest_stops {
-      padding-left: 18px;
-    }
-
-    #rest_stops li {
-      margin-bottom: 12px;
-      line-height: 1.5;
-    }
-
-    a {
-      color: #38bdf8;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .small-note {
-      color: #94a3b8;
-      font-size: 13px;
-    }
-
-    .btn-custom {
-      border-radius: 10px;
-      font-weight: 600;
-    }
-  </style>
-    </head>
-
-    <body>
-        <div class="container py-4">
-            <h2 class="page-title text-center">
-                HỆ THỐNG GIÁM SÁT & CẢNH BÁO NGỦ GẬT
-            </h2>
-
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card-custom">
-                        <img
-                            src="{{ url_for('video_feed') }}"
-                            class="video-frame"
-                            alt="Camera stream" />
+                        <div class="camera-box">
+                            <img
+                                src="{{ url_for('video_feed') }}"
+                                class="video-frame"
+                                alt="Camera stream"
+                            />
+                        </div>
                     </div>
 
-                    <div class="card-custom">
-                        <h5>Bản đồ gợi ý điểm nghỉ gần nhất</h5>
-                        <p class="small-note">
-                            Khi phát hiện buồn ngủ, hệ thống sẽ lấy GPS trình
-                            duyệt. Nếu không được cấp quyền, hệ thống dùng vị
-                            trí IP để demo.
-                        </p>
+                    <div class="dashboard-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h5>Bản đồ gợi ý điểm nghỉ gần nhất</h5>
+                                <span>
+                                    Hệ thống ưu tiên trạm nghỉ, cây xăng, quán cà phê,
+                                    quán ăn và các điểm có thể dừng chân. Nếu GPS có
+                                    hướng di chuyển, kết quả phía trước xe sẽ được ưu tiên.
+                                </span>
+                            </div>
+                        </div>
 
-                        <div class="d-flex gap-2 mb-3">
-                            <button class="btn btn-primary btn-custom"
-                                onclick="requestNearbyStops()">
+                        <div class="map-controls">
+                            <button
+                                class="btn btn-primary btn-custom"
+                                onclick="requestNearbyStops()"
+                            >
                                 Tìm điểm nghỉ ngay
                             </button>
 
-                            <select id="radius_select"
-                                class="form-select w-auto">
+                            <select id="radius_select" class="form-select radius-select">
                                 <option value="5000">5 km</option>
                                 <option value="10000">10 km</option>
                                 <option value="20000">20 km</option>
                                 <option value="30000">30 km</option>
-                                <option value="40000" selected>40 km</option>
+                                <option value="40000">40 km</option>
+                                <option value="60000" selected>60 km</option>
                             </select>
-
                         </div>
 
                         <div id="map"></div>
                     </div>
                 </div>
 
-                <div class="col-lg-4">
-                    <div class="card-custom">
-                        <div id="status"
-                            class="alert-box alert alert-success text-center">
+                <div class="col-xl-4 col-lg-5">
+                    <div class="dashboard-card">
+                        <div
+                            id="status"
+                            class="alert-box alert alert-success text-center"
+                        >
                             TỈNH TÁO
                         </div>
 
                         <div class="metric">
-                            <span>Trạng thái:</span>
-                            <span id="state_val">NORMAL</span>
+                            <span>Trạng thái</span>
+                            <strong id="state_val">NORMAL</strong>
                         </div>
 
                         <div class="metric">
-                            <span>EAR:</span>
-                            <span id="ear_val">0.00</span>
+                            <span>EAR</span>
+                            <strong id="ear_val">0.00</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Ngưỡng EAR:</span>
-                            <span id="threshold_val">0.00</span>
+                            <span>Ngưỡng EAR</span>
+                            <strong id="threshold_val">0.00</strong>
                         </div>
 
                         <div class="metric">
-                            <span>MAR:</span>
-                            <span id="mar_val">0.00</span>
+                            <span>MAR</span>
+                            <strong id="mar_val">0.00</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Góc/cúi đầu:</span>
-                            <span id="pose_val">0.00</span>
+                            <span>Góc/cúi đầu</span>
+                            <strong id="pose_val">0.00</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Điểm buồn ngủ:</span>
-                            <span id="score_val">0.00</span>
+                            <span>Điểm buồn ngủ</span>
+                            <strong id="score_val">0.00</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Số người thấy được:</span>
-                            <span id="face_count">0</span>
+                            <span>Số người thấy được</span>
+                            <strong id="face_count">0</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Số mắt thấy rõ:</span>
-                            <span id="visible_eye_count">0</span>
+                            <span>Số mắt thấy rõ</span>
+                            <strong id="visible_eye_count">0</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Độ tin cậy camera:</span>
-                            <span id="confidence_val">0.00</span>
+                            <span>Độ tin cậy camera</span>
+                            <strong id="confidence_val">0.00</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Chế độ nhận diện:</span>
-                            <span id="detection_mode_val">EYE_MODE</span>
+                            <span>Chế độ nhận diện</span>
+                            <strong id="detection_mode_val">FULL_FACE_MODE</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Điểm fallback:</span>
-                            <span id="fallback_score_val">0.00</span>
+                            <span>Điểm fallback</span>
+                            <strong id="fallback_score_val">0.00</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Thời gian cúi đầu:</span>
-                            <span id="head_down_duration_val">0.00s</span>
+                            <span>Thời gian cúi đầu</span>
+                            <strong id="head_down_duration_val">0.00s</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Thời gian ngáp fallback:</span>
-                            <span id="fallback_yawn_duration_val">0.00s</span>
+                            <span>Thời gian ngáp fallback</span>
+                            <strong id="fallback_yawn_duration_val">0.00s</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Chồm/lấy đồ:</span>
-                            <span id="leaning_val">Không</span>
+                            <span>Chồm/lấy đồ</span>
+                            <strong id="leaning_val">Không</strong>
                         </div>
 
                         <div class="metric">
-                            <span>Vật cản/góc kém:</span>
-                            <span id="occlusion">Không</span>
+                            <span>Vật cản/góc kém</span>
+                            <strong id="occlusion">Không</strong>
                         </div>
                     </div>
 
-                    <div class="card-custom">
-                        <h5>Điểm nghỉ gần nhất</h5>
-                        <p id="location_text" class="small-note">Chưa có vị
-                            trí.</p>
+                    <div class="dashboard-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h5>Điểm nghỉ gần nhất</h5>
+                                <span id="location_text">
+                                    Chưa có vị trí.
+                                </span>
+                            </div>
+                        </div>
 
-                        <ul id="rest_stops">
+                        <ul id="rest_stops" class="rest-stop-list">
                             <li>Chưa có dữ liệu</li>
+                        </ul>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h5>Lịch sử cảnh báo</h5>
+                                <span>Chỉ lưu 30 cảnh báo mới nhất</span>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span>Tổng cảnh báo</span>
+                                <strong id="total_alerts">
+                                    {{ alert_stats.total_alerts }}
+                                </strong>
+                            </div>
+
+                            <div class="stat-item">
+                                <span>Ngủ gật</span>
+                                <strong id="drowsy_count">
+                                    {{ alert_stats.drowsy_count }}
+                                </strong>
+                            </div>
+
+                            <div class="stat-item">
+                                <span>Cảnh báo nhẹ</span>
+                                <strong id="warning_count">
+                                    {{ alert_stats.warning_count }}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <ul id="alert_history" class="alert-history-list">
+                            {% if alert_logs %}
+                                {% for item in alert_logs %}
+                                    <li>
+                                        <b>{{ item.time }}</b><br />
+                                        Trạng thái: {{ item.state }}<br />
+                                        EAR: {{ item.ear }} |
+                                        MAR: {{ item.mar }} |
+                                        Score: {{ item.drowsy_score }}
+                                    </li>
+                                {% endfor %}
+                            {% else %}
+                                <li>Chưa có cảnh báo</li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    </body>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
 </html>

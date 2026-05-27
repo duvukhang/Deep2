@@ -13,17 +13,22 @@ function setText(id, value) {
 
 function setStatusBox(state, isDrowsy) {
   const status = document.getElementById("status");
-
   if (!status) return;
 
   if (state === "DROWSY_CONFIRMED" || isDrowsy) {
     status.innerText = "NGỦ GẬT!";
     status.className = "alert-box alert alert-danger text-center";
   } else if (state === "WARNING_SUNGLASSES_MODE") {
-    status.innerText = "CẢNH BÁO - KHÔNG THẤY MẮT";
+    status.innerText = "CẢNH BÁO - KÍNH RÂM";
+    status.className = "alert-box alert alert-warning text-center";
+  } else if (state === "WARNING_MASK_MODE") {
+    status.innerText = "CẢNH BÁO - KHẨU TRANG";
     status.className = "alert-box alert alert-warning text-center";
   } else if (state === "SUNGLASSES_MODE") {
     status.innerText = "CHẾ ĐỘ KÍNH RÂM";
+    status.className = "alert-box alert alert-info text-center";
+  } else if (state === "MASK_MODE") {
+    status.innerText = "CHẾ ĐỘ KHẨU TRANG";
     status.className = "alert-box alert alert-info text-center";
   } else if (state === "WARNING_LEVEL_1") {
     status.innerText = "CÓ DẤU HIỆU MỆT";
@@ -38,6 +43,29 @@ function setStatusBox(state, isDrowsy) {
     status.innerText = "TỈNH TÁO";
     status.className = "alert-box alert alert-success text-center";
   }
+}
+
+function modeLabel(mode) {
+  const labels = {
+    FULL_FACE_MODE: "Mắt + miệng + tư thế",
+    SUNGLASSES_MOUTH_POSE_MODE: "Kính râm: miệng + tư thế",
+    MASK_EYE_POSE_MODE: "Khẩu trang: mắt + tư thế",
+    EYE_POSE_MODE: "Mắt + tư thế",
+    MOUTH_POSE_MODE: "Miệng + tư thế",
+    CAMERA_BAD_MODE: "Camera/góc kém",
+    NO_FACE_MODE: "Không thấy mặt"
+  };
+
+  return labels[mode] || mode || "FULL_FACE_MODE";
+}
+
+function occlusionLabel(data) {
+  if (data.mask_detected) return "Khẩu trang";
+  if (data.sunglasses_detected) return "Kính râm";
+  if (!data.eye_visible && !data.mouth_visible) return "Mắt và miệng bị che";
+  if (!data.eye_visible) return "Mắt bị che";
+  if (!data.mouth_visible) return "Miệng bị che";
+  return "Không";
 }
 
 function initMap(lat, lon) {
@@ -80,10 +108,11 @@ function clearPoiMarkers() {
 function addPoiMarker(stop) {
   if (!map || !stop.lat || !stop.lon) return;
 
+  const routeInfo = stop.route_text ? `<br>${stop.route_text}` : "";
   const popupHtml = `
     <b>${stop.name}</b><br>
     ${stop.type}<br>
-    Cách khoảng ${stop.distance_text}<br>
+    Cách khoảng ${stop.distance_text}${routeInfo}<br>
     <a href="${stop.direction_url}" target="_blank">Chỉ đường</a>
   `;
 
@@ -106,12 +135,16 @@ async function getLocationByBrowser() {
         resolve({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
+          heading: Number.isFinite(position.coords.heading)
+            ? position.coords.heading
+            : null,
+          speed: Number.isFinite(position.coords.speed)
+            ? position.coords.speed
+            : null,
           source: "GPS trình duyệt"
         });
       },
-      error => {
-        reject(error);
-      },
+      error => reject(error),
       {
         enableHighAccuracy: true,
         timeout: 6000,
@@ -132,6 +165,8 @@ async function getLocationByIP() {
   return {
     latitude: data.location.lat,
     longitude: data.location.lon,
+    heading: null,
+    speed: null,
     source: "IP máy tính",
     city: data.location.city,
     region: data.location.region,
@@ -153,10 +188,9 @@ async function requestNearbyStops() {
     setText("location_text", "Đang lấy vị trí...");
 
     const radiusSelect = document.getElementById("radius_select");
-    const radius = radiusSelect ? parseInt(radiusSelect.value) : 40000;
+    const radius = radiusSelect ? parseInt(radiusSelect.value, 10) : 60000;
 
     const coords = await getBestLocation();
-
     const lat = coords.latitude;
     const lon = coords.longitude;
 
@@ -174,14 +208,18 @@ async function requestNearbyStops() {
     );
 
     socket.emit("find_stops_request", {
-      lat: lat,
-      lon: lon,
-      radius: radius
+      lat,
+      lon,
+      radius,
+      heading: coords.heading,
+      speed: coords.speed
     });
-
   } catch (err) {
     console.error("Lỗi lấy vị trí:", err);
-    setText("location_text", "Không lấy được vị trí. Hãy bật quyền vị trí hoặc kiểm tra mạng.");
+    setText(
+      "location_text",
+      "Không lấy được vị trí. Hãy bật quyền vị trí hoặc kiểm tra mạng."
+    );
   }
 }
 
@@ -206,9 +244,8 @@ socket.on("update_data", data => {
   setText("visible_eye_count", data.visible_eye_count ?? 0);
   setText("confidence_val", confidence.toFixed(2));
   setText("leaning_val", data.is_leaning ? "Có" : "Không");
-  setText("occlusion", data.eye_visible ? "Không" : "Có");
-
-  setText("detection_mode_val", data.detection_mode || "EYE_MODE");
+  setText("occlusion", occlusionLabel(data));
+  setText("detection_mode_val", modeLabel(data.detection_mode));
   setText("fallback_score_val", fallbackScore.toFixed(2));
   setText("head_down_duration_val", headDownDuration.toFixed(2) + "s");
   setText("fallback_yawn_duration_val", fallbackYawnDuration.toFixed(2) + "s");
@@ -225,14 +262,17 @@ socket.on("update_data", data => {
     }
   }
 
-  if (data.state === "NORMAL" || data.state === "SUNGLASSES_MODE") {
+  if (
+    data.state === "NORMAL"
+    || data.state === "SUNGLASSES_MODE"
+    || data.state === "MASK_MODE"
+  ) {
     requested = false;
   }
 });
 
 socket.on("rest_stops_data", data => {
   const list = document.getElementById("rest_stops");
-
   if (!list) return;
 
   list.innerHTML = "";
@@ -251,11 +291,14 @@ socket.on("rest_stops_data", data => {
 
   data.stops.forEach(stop => {
     const li = document.createElement("li");
+    const routeInfo = stop.route_text
+      ? `<br><span>${stop.route_text}</span>`
+      : "";
 
     li.innerHTML = `
       <b>${stop.name}</b><br>
       Loại: ${stop.type}<br>
-      Cách khoảng: ${stop.distance_text}<br>
+      Cách khoảng: ${stop.distance_text}${routeInfo}<br>
       <a href="${stop.map_url}" target="_blank">Mở trên OpenStreetMap</a>
       |
       <a href="${stop.direction_url}" target="_blank">Chỉ đường</a>
@@ -274,3 +317,44 @@ socket.on("rest_stops_data", data => {
     }
   }
 });
+
+async function loadAlertHistory() {
+  try {
+    const res = await fetch("/api/alerts");
+    const data = await res.json();
+
+    if (!data.success) return;
+
+    setText("total_alerts", data.stats.total_alerts);
+    setText("drowsy_count", data.stats.drowsy_count);
+    setText("warning_count", data.stats.warning_count);
+
+    const list = document.getElementById("alert_history");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    if (!data.logs || data.logs.length === 0) {
+      list.innerHTML = "<li>Chưa có cảnh báo</li>";
+      return;
+    }
+
+    data.logs.forEach(item => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        <b>${item.time}</b><br>
+        Trạng thái: ${item.state}<br>
+        EAR: ${item.ear} | MAR: ${item.mar}<br>
+        Score: ${item.drowsy_score}
+      `;
+
+      list.appendChild(li);
+    });
+  } catch (err) {
+    console.error("Không tải được lịch sử cảnh báo:", err);
+  }
+}
+
+setInterval(loadAlertHistory, 5000);
+loadAlertHistory();

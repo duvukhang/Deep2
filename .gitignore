@@ -1,1 +1,8 @@
-venv310/ 
+venv/
+venv310/
+__pycache__/
+*.pyc
+.env
+.envn
+data/
+runs/

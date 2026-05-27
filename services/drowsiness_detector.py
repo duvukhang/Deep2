@@ -1,8 +1,10 @@
 # services/drowsiness_detector.py
 
-import time
 import math
+import time
+
 import numpy as np
+
 from config import DrowsinessConfig
 
 
@@ -130,15 +132,165 @@ class DrowsinessDetector:
 
         area_ratio = face_area / frame_area
         area_score = min(1.0, area_ratio * 8)
-
         eye_score = visible_eye_count / 2.0
 
-        # Nếu không thấy mắt nhưng mặt vẫn rõ, cho phép vào chế độ kính râm
         if visible_eye_count == 0:
             eye_score = 0.15
 
         confidence = area_score * 0.55 + eye_score * 0.45
         return round(float(confidence), 2)
+
+    def landmark_box(self, landmarks, indices, w, h, padding=0.25):
+        points = [self.point(landmarks, idx, w, h) for idx in indices]
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+
+        x1, x2 = min(xs), max(xs)
+        y1, y2 = min(ys), max(ys)
+
+        pad_x = int((x2 - x1) * padding)
+        pad_y = int((y2 - y1) * padding)
+
+        return (
+            max(0, x1 - pad_x),
+            max(0, y1 - pad_y),
+            min(w, x2 + pad_x),
+            min(h, y2 + pad_y)
+        )
+
+    def region_stats(self, frame, box):
+        if frame is None or box is None:
+            return {
+                "skin_ratio": 1.0,
+                "dark_ratio": 0.0,
+                "mean_gray": 128.0,
+                "texture": 32.0
+            }
+
+        x1, y1, x2, y2 = box
+        if x2 <= x1 or y2 <= y1:
+            return {
+                "skin_ratio": 1.0,
+                "dark_ratio": 0.0,
+                "mean_gray": 128.0,
+                "texture": 32.0
+            }
+
+        crop = frame[y1:y2, x1:x2]
+        if crop.size == 0:
+            return {
+                "skin_ratio": 1.0,
+                "dark_ratio": 0.0,
+                "mean_gray": 128.0,
+                "texture": 32.0
+            }
+
+        b = crop[:, :, 0].astype(np.int16)
+        g = crop[:, :, 1].astype(np.int16)
+        r = crop[:, :, 2].astype(np.int16)
+
+        max_rgb = np.maximum(np.maximum(r, g), b)
+        min_rgb = np.minimum(np.minimum(r, g), b)
+        gray = 0.114 * b + 0.587 * g + 0.299 * r
+
+        skin = (
+            (r > 80)
+            & (g > 30)
+            & (b > 15)
+            & (r > g)
+            & (r > b)
+            & ((max_rgb - min_rgb) > 12)
+        )
+
+        return {
+            "skin_ratio": float(np.mean(skin)),
+            "dark_ratio": float(np.mean(gray < 55)),
+            "mean_gray": float(np.mean(gray)),
+            "texture": float(np.std(gray))
+        }
+
+    def estimate_face_cover(
+        self,
+        landmarks,
+        frame,
+        w,
+        h,
+        eye_visible,
+        visible_eye_count
+    ):
+        if landmarks is None:
+            return {
+                "mouth_visible": False,
+                "sunglasses_detected": False,
+                "mask_detected": False
+            }
+
+        eye_indices = [33, 133, 159, 145, 362, 263, 386, 374]
+        mouth_indices = [0, 13, 14, 17, 61, 78, 164, 291, 308, 152]
+
+        eye_box = self.landmark_box(landmarks, eye_indices, w, h, padding=0.45)
+        mouth_box = self.landmark_box(landmarks, mouth_indices, w, h, padding=0.35)
+
+        eye_stats = self.region_stats(frame, eye_box)
+        mouth_stats = self.region_stats(frame, mouth_box)
+
+        sunglasses_detected = (
+            not eye_visible
+            and (
+                visible_eye_count == 0
+                or eye_stats["dark_ratio"] >= DrowsinessConfig.SUNGLASSES_DARK_RATIO_MIN
+            )
+        )
+
+        mask_detected = (
+            eye_visible
+            and mouth_stats["skin_ratio"] < DrowsinessConfig.MOUTH_SKIN_RATIO_MIN
+            and mouth_stats["mean_gray"] > 45
+        )
+
+        mouth_visible = not mask_detected
+
+        if not eye_visible and mouth_stats["skin_ratio"] < 0.10:
+            mouth_visible = False
+
+        return {
+            "mouth_visible": mouth_visible,
+            "sunglasses_detected": sunglasses_detected,
+            "mask_detected": mask_detected
+        }
+
+    def select_detection_mode(
+        self,
+        face_count,
+        eye_visible,
+        mouth_visible,
+        sunglasses_detected,
+        mask_detected,
+        confidence
+    ):
+        if face_count == 0:
+            return "NO_FACE_MODE"
+
+        if confidence < DrowsinessConfig.NO_EYE_CONFIDENCE_MIN:
+            if not eye_visible and not mouth_visible:
+                return "CAMERA_BAD_MODE"
+
+        if mask_detected and eye_visible:
+            return "MASK_EYE_POSE_MODE"
+
+        if sunglasses_detected and mouth_visible:
+            return "SUNGLASSES_MOUTH_POSE_MODE"
+
+        if eye_visible and mouth_visible:
+            return "FULL_FACE_MODE"
+
+        if eye_visible:
+            return "EYE_POSE_MODE"
+
+        if mouth_visible:
+            return "MOUTH_POSE_MODE"
+
+        return "CAMERA_BAD_MODE"
 
     def detect_leaning_forward(self, face_box):
         if face_box is None:
@@ -158,7 +310,6 @@ class DrowsinessDetector:
         self.prev_face_area = area
 
         is_leaning = y_change > 45 or area_change_ratio > 0.28
-
         now = time.time()
 
         if is_leaning:
@@ -187,46 +338,37 @@ class DrowsinessDetector:
         self.bad_camera_start = None
         return False
 
-    def update_no_eye_mode(self, eye_visible, mar, head_pose_value, confidence, face_count):
+    def update_mode_timers(self, detection_mode, mar, head_pose_value):
         now = time.time()
+        inactive_modes = {"NO_FACE_MODE", "CAMERA_BAD_MODE"}
 
-        if face_count == 0:
+        if detection_mode in inactive_modes:
             self.head_down_start = None
             self.no_eye_yawn_start = None
             self.no_eye_start = None
 
             return {
-                "mode": "NO_FACE_MODE",
                 "head_down_duration": 0.0,
                 "fallback_yawn_duration": 0.0,
                 "fallback_score": 0.0
             }
 
-        if eye_visible:
-            self.head_down_start = None
-            self.no_eye_yawn_start = None
+        mouth_modes = {
+            "FULL_FACE_MODE",
+            "SUNGLASSES_MOUTH_POSE_MODE",
+            "MOUTH_POSE_MODE"
+        }
+
+        no_eye_modes = {
+            "SUNGLASSES_MOUTH_POSE_MODE",
+            "MOUTH_POSE_MODE"
+        }
+
+        if detection_mode in no_eye_modes:
+            if self.no_eye_start is None:
+                self.no_eye_start = now
+        else:
             self.no_eye_start = None
-
-            return {
-                "mode": "EYE_MODE",
-                "head_down_duration": 0.0,
-                "fallback_yawn_duration": 0.0,
-                "fallback_score": 0.0
-            }
-
-        if confidence < DrowsinessConfig.NO_EYE_CONFIDENCE_MIN:
-            self.head_down_start = None
-            self.no_eye_yawn_start = None
-
-            return {
-                "mode": "CAMERA_BAD_MODE",
-                "head_down_duration": 0.0,
-                "fallback_yawn_duration": 0.0,
-                "fallback_score": 0.0
-            }
-
-        if self.no_eye_start is None:
-            self.no_eye_start = now
 
         if head_pose_value > DrowsinessConfig.HEAD_DOWN_THRESHOLD:
             if self.head_down_start is None:
@@ -234,7 +376,7 @@ class DrowsinessDetector:
         else:
             self.head_down_start = None
 
-        if mar > DrowsinessConfig.MAR_THRESHOLD:
+        if detection_mode in mouth_modes and mar > DrowsinessConfig.MAR_THRESHOLD:
             if self.no_eye_yawn_start is None:
                 self.no_eye_yawn_start = now
         else:
@@ -261,13 +403,12 @@ class DrowsinessDetector:
             fallback_score += 1.0
 
         return {
-            "mode": "NO_EYE_MODE",
             "head_down_duration": round(head_down_duration, 2),
             "fallback_yawn_duration": round(fallback_yawn_duration, 2),
             "fallback_score": round(fallback_score, 2)
         }
 
-    def update(self, face_count, selected_face_box, landmarks, frame_w, frame_h):
+    def update(self, face_count, selected_face_box, landmarks, frame_w, frame_h, frame=None):
         now = time.time()
 
         ear = 0.0
@@ -276,6 +417,9 @@ class DrowsinessDetector:
         confidence = 0.0
         visible_eye_count = 0
         eye_visible = False
+        mouth_visible = False
+        sunglasses_detected = False
+        mask_detected = False
         eye_closed_duration = 0.0
         yawn_duration = 0.0
         is_leaning = False
@@ -295,8 +439,18 @@ class DrowsinessDetector:
                 frame_h,
                 visible_eye_count
             )
-
             is_leaning = self.detect_leaning_forward(selected_face_box)
+            cover = self.estimate_face_cover(
+                landmarks,
+                frame,
+                frame_w,
+                frame_h,
+                eye_visible,
+                visible_eye_count
+            )
+            mouth_visible = cover["mouth_visible"]
+            sunglasses_detected = cover["sunglasses_detected"]
+            mask_detected = cover["mask_detected"]
 
         if face_count == 0 or selected_face_box is None:
             self.drowsy_score = max(0.0, self.drowsy_score - 0.3)
@@ -319,7 +473,7 @@ class DrowsinessDetector:
         if self.eye_closed_start:
             eye_closed_duration = now - self.eye_closed_start
 
-        if mar > DrowsinessConfig.MAR_THRESHOLD:
+        if mouth_visible and mar > DrowsinessConfig.MAR_THRESHOLD:
             if self.yawn_start is None:
                 self.yawn_start = now
         else:
@@ -328,15 +482,21 @@ class DrowsinessDetector:
         if self.yawn_start:
             yawn_duration = now - self.yawn_start
 
-        fallback = self.update_no_eye_mode(
+        detection_mode = self.select_detection_mode(
+            face_count=face_count,
             eye_visible=eye_visible,
-            mar=mar,
-            head_pose_value=head_pose,
-            confidence=confidence,
-            face_count=face_count
+            mouth_visible=mouth_visible,
+            sunglasses_detected=sunglasses_detected,
+            mask_detected=mask_detected,
+            confidence=confidence
         )
 
-        detection_mode = fallback["mode"]
+        fallback = self.update_mode_timers(
+            detection_mode=detection_mode,
+            mar=mar,
+            head_pose_value=head_pose
+        )
+
         fallback_score = fallback["fallback_score"]
         head_down_duration = fallback["head_down_duration"]
         fallback_yawn_duration = fallback["fallback_yawn_duration"]
@@ -345,8 +505,12 @@ class DrowsinessDetector:
         bad_camera_grace = self.is_bad_camera_grace(confidence)
         leaning_grace = self.is_in_lean_grace()
 
+        full_face_modes = {"FULL_FACE_MODE"}
+        eye_pose_modes = {"MASK_EYE_POSE_MODE", "EYE_POSE_MODE"}
+        mouth_pose_modes = {"SUNGLASSES_MOUTH_POSE_MODE", "MOUTH_POSE_MODE"}
+
         if not leaning_grace and not bad_camera_grace:
-            if detection_mode == "EYE_MODE":
+            if detection_mode in full_face_modes:
                 if eye_closed_duration > DrowsinessConfig.EYE_CLOSED_SECONDS:
                     self.drowsy_score += 1.15
 
@@ -356,9 +520,16 @@ class DrowsinessDetector:
                 if head_pose > DrowsinessConfig.HEAD_DOWN_THRESHOLD:
                     self.drowsy_score += 0.75
 
-            elif detection_mode == "NO_EYE_MODE":
+            elif detection_mode in eye_pose_modes:
+                if eye_closed_duration > DrowsinessConfig.EYE_CLOSED_SECONDS:
+                    self.drowsy_score += 1.2
+
+                if head_down_duration > DrowsinessConfig.NO_EYE_HEAD_DOWN_SECONDS:
+                    self.drowsy_score += 0.95
+
+            elif detection_mode in mouth_pose_modes:
                 if fallback_score >= 4.0:
-                    self.drowsy_score += 0.85
+                    self.drowsy_score += 0.9
 
                 if fallback_score >= 7.0:
                     self.drowsy_score += 1.2
@@ -369,7 +540,7 @@ class DrowsinessDetector:
         else:
             self.drowsy_score = max(0.0, self.drowsy_score - 0.45)
 
-        if detection_mode == "EYE_MODE":
+        if detection_mode in full_face_modes:
             if (
                 eye_closed_duration < 0.7
                 and yawn_duration < 0.8
@@ -378,7 +549,15 @@ class DrowsinessDetector:
             ):
                 self.drowsy_score -= 0.35
 
-        elif detection_mode == "NO_EYE_MODE":
+        elif detection_mode in eye_pose_modes:
+            if (
+                eye_closed_duration < 0.7
+                and head_pose < DrowsinessConfig.HEAD_DOWN_THRESHOLD
+                and confidence >= DrowsinessConfig.NO_EYE_CONFIDENCE_MIN
+            ):
+                self.drowsy_score -= 0.3
+
+        elif detection_mode in mouth_pose_modes:
             if (
                 fallback_score < 3.0
                 and mar < DrowsinessConfig.MAR_THRESHOLD
@@ -395,40 +574,38 @@ class DrowsinessDetector:
         if face_count == 0:
             state = "NO_FACE"
             is_drowsy = False
-
         elif selected_face_box is None:
             state = "NO_DRIVER_IN_ROI"
             is_drowsy = False
-
         elif bad_camera and not bad_camera_grace:
             state = "CAMERA_BAD"
             is_drowsy = False
-
         elif (
-            detection_mode == "NO_EYE_MODE"
+            detection_mode in mouth_pose_modes
             and self.drowsy_score >= DrowsinessConfig.NO_EYE_DROWSY_SCORE_LIMIT
         ):
             state = "DROWSY_CONFIRMED"
             is_drowsy = True
-
         elif (
-            detection_mode == "EYE_MODE"
+            detection_mode in full_face_modes.union(eye_pose_modes)
             and self.drowsy_score >= DrowsinessConfig.NORMAL_DROWSY_LIMIT
         ):
             state = "DROWSY_CONFIRMED"
             is_drowsy = True
-
         elif self.drowsy_score >= DrowsinessConfig.WARNING_LIMIT:
-            if detection_mode == "NO_EYE_MODE":
+            if detection_mode == "SUNGLASSES_MOUTH_POSE_MODE":
                 state = "WARNING_SUNGLASSES_MODE"
+            elif detection_mode == "MASK_EYE_POSE_MODE":
+                state = "WARNING_MASK_MODE"
             else:
                 state = "WARNING_LEVEL_1"
 
             is_drowsy = False
-
         else:
-            if detection_mode == "NO_EYE_MODE":
+            if detection_mode == "SUNGLASSES_MOUTH_POSE_MODE":
                 state = "SUNGLASSES_MODE"
+            elif detection_mode == "MASK_EYE_POSE_MODE":
+                state = "MASK_MODE"
             else:
                 state = "NORMAL"
 
@@ -441,6 +618,9 @@ class DrowsinessDetector:
             "confidence": confidence,
             "visible_eye_count": visible_eye_count,
             "eye_visible": eye_visible,
+            "mouth_visible": mouth_visible,
+            "sunglasses_detected": sunglasses_detected,
+            "mask_detected": mask_detected,
             "is_leaning": is_leaning,
             "threshold": round(threshold, 3),
             "drowsy_score": round(self.drowsy_score, 2),

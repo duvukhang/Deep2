@@ -5,6 +5,7 @@ class AppConfig:
     PORT = 5000
     CAMERA_INDEX = 0
     DEBUG = False
+    ALERT_HISTORY_LIMIT = 30
 
 
 class DriverConfig:
@@ -61,6 +62,9 @@ class DrowsinessConfig:
     NORMAL_DROWSY_LIMIT = 6.0
     WARNING_LIMIT = 3.2
 
+    MOUTH_SKIN_RATIO_MIN = 0.18
+    SUNGLASSES_DARK_RATIO_MIN = 0.42
+
 
 class MapConfig:
-    DEFAULT_RADIUS = 40000
+    DEFAULT_RADIUS = 60000
