@@ -88,6 +88,25 @@
                             </select>
                         </div>
 
+                        <div class="address-route-controls">
+                            <input
+                                id="address_input"
+                                class="form-control address-input"
+                                type="text"
+                                placeholder="Nhập địa chỉ muốn đến"
+                                onkeydown="if (event.key === 'Enter') searchAddressAndRoute()"
+                            />
+
+                            <button
+                                class="btn btn-success btn-custom"
+                                onclick="searchAddressAndRoute()"
+                            >
+                                Tìm đường
+                            </button>
+                        </div>
+
+                        <div id="route_status" class="route-status"></div>
+
                         <div id="map"></div>
                     </div>
                 </div>
@@ -127,8 +146,33 @@
                         </div>
 
                         <div class="metric">
+                            <span>Pitch / Yaw / Roll</span>
+                            <strong id="head_angles_val">0° / 0° / 0°</strong>
+                        </div>
+
+                        <div class="metric">
                             <span>Điểm buồn ngủ</span>
                             <strong id="score_val">0.00</strong>
+                        </div>
+
+                        <div class="metric">
+                            <span>Tư thế ngủ gật</span>
+                            <strong id="posture_status_val">Ổn định</strong>
+                        </div>
+
+                        <div class="metric">
+                            <span>Số lần gật đầu</span>
+                            <strong id="nod_count_val">0</strong>
+                        </div>
+
+                        <div class="metric">
+                            <span>Số lần đổ/chồm</span>
+                            <strong id="lean_event_count_val">0</strong>
+                        </div>
+
+                        <div class="metric">
+                            <span>Điểm tư thế</span>
+                            <strong id="posture_score_val">0.00</strong>
                         </div>
 
                         <div class="metric">
@@ -144,6 +188,16 @@
                         <div class="metric">
                             <span>Độ tin cậy camera</span>
                             <strong id="confidence_val">0.00</strong>
+                        </div>
+
+                        <div class="metric">
+                            <span>Cân sáng camera</span>
+                            <strong id="lighting_mode_val">Bình thường</strong>
+                        </div>
+
+                        <div class="metric">
+                            <span>Sáng / tương phản</span>
+                            <strong id="brightness_val">0 / 0</strong>
                         </div>
 
                         <div class="metric">

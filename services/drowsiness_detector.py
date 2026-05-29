@@ -3,6 +3,7 @@
 import math
 import time
 
+import cv2
 import numpy as np
 
 from config import DrowsinessConfig
@@ -23,10 +24,22 @@ class DrowsinessDetector:
         self.prev_face_area = None
         self.leaning_start = None
         self.bad_camera_start = None
+        self.face_baseline_center = None
+        self.face_baseline_area = None
 
         self.head_down_start = None
         self.no_eye_yawn_start = None
         self.no_eye_start = None
+        self.pose_buffer = []
+        self.pose_baseline = None
+        self.mask_score = 0.0
+        self.nod_phase = "stable"
+        self.nod_down_started_at = None
+        self.last_posture_event_at = 0.0
+        self.last_posture_score_at = 0.0
+        self.nod_events = []
+        self.lean_events = []
+        self.previous_leaning = False
 
     def distance(self, p1, p2):
         return math.dist(p1, p2)
@@ -114,6 +127,157 @@ class DrowsinessDetector:
         except Exception:
             return 0.0
 
+    def normalize_angle(self, angle):
+        angle = ((float(angle) + 180.0) % 360.0) - 180.0
+
+        if angle > 90.0:
+            angle = 180.0 - angle
+        elif angle < -90.0:
+            angle = -180.0 - angle
+
+        return angle
+
+    def calculate_head_pose_angles(self, landmarks, w, h):
+        try:
+            image_points = np.array([
+                self.point(landmarks, 1, w, h),
+                self.point(landmarks, 152, w, h),
+                self.point(landmarks, 33, w, h),
+                self.point(landmarks, 263, w, h),
+                self.point(landmarks, 61, w, h),
+                self.point(landmarks, 291, w, h)
+            ], dtype=np.float64)
+
+            model_points = np.array([
+                (0.0, 0.0, 0.0),
+                (0.0, -63.6, -12.5),
+                (-43.3, 32.7, -26.0),
+                (43.3, 32.7, -26.0),
+                (-28.9, -28.9, -24.1),
+                (28.9, -28.9, -24.1)
+            ], dtype=np.float64)
+
+            focal_length = float(w)
+            center = (w / 2.0, h / 2.0)
+            camera_matrix = np.array([
+                [focal_length, 0.0, center[0]],
+                [0.0, focal_length, center[1]],
+                [0.0, 0.0, 1.0]
+            ], dtype=np.float64)
+            dist_coeffs = np.zeros((4, 1), dtype=np.float64)
+
+            success, rotation_vector, translation_vector = cv2.solvePnP(
+                model_points,
+                image_points,
+                camera_matrix,
+                dist_coeffs,
+                flags=cv2.SOLVEPNP_ITERATIVE
+            )
+
+            if not success:
+                return None
+
+            rotation_matrix, _ = cv2.Rodrigues(rotation_vector)
+            projection_matrix = np.hstack((rotation_matrix, translation_vector))
+            _, _, _, _, _, _, euler_angles = cv2.decomposeProjectionMatrix(
+                projection_matrix
+            )
+
+            pitch, yaw, roll = euler_angles.flatten()
+
+            return {
+                "pitch": self.normalize_angle(pitch),
+                "yaw": self.normalize_angle(yaw),
+                "roll": self.normalize_angle(roll)
+            }
+        except Exception:
+            return None
+
+    def smooth_head_pose_angles(self, angles):
+        self.pose_buffer.append(angles)
+
+        if len(self.pose_buffer) > 6:
+            self.pose_buffer.pop(0)
+
+        return {
+            key: float(np.mean([item[key] for item in self.pose_buffer]))
+            for key in ["pitch", "yaw", "roll"]
+        }
+
+    def angle_risk(self, angle_delta, warn_degrees, drowsy_degrees):
+        if drowsy_degrees <= warn_degrees:
+            return 0.0
+
+        value = abs(float(angle_delta))
+        risk = (value - warn_degrees) / (drowsy_degrees - warn_degrees)
+        return max(0.0, min(risk, 1.25))
+
+    def calculate_head_pose_metrics(self, landmarks, w, h):
+        legacy_ratio = self.calculate_head_pose_score(landmarks, w, h)
+        angles = self.calculate_head_pose_angles(landmarks, w, h)
+
+        default_metrics = {
+            "head_pitch": 0.0,
+            "head_yaw": 0.0,
+            "head_roll": 0.0,
+            "head_pitch_delta": 0.0,
+            "head_yaw_delta": 0.0,
+            "head_roll_delta": 0.0,
+            "legacy_head_ratio": round(legacy_ratio, 3)
+        }
+
+        if angles is None:
+            legacy_score = max(0.0, min((legacy_ratio - 0.55) / 0.35, 1.25))
+            return legacy_score, default_metrics
+
+        smooth_angles = self.smooth_head_pose_angles(angles)
+
+        if self.pose_baseline is None:
+            self.pose_baseline = smooth_angles.copy()
+
+        deltas = {
+            key: smooth_angles[key] - self.pose_baseline[key]
+            for key in ["pitch", "yaw", "roll"]
+        }
+
+        pitch_score = self.angle_risk(
+            deltas["pitch"],
+            DrowsinessConfig.HEAD_PITCH_WARN_DEGREES,
+            DrowsinessConfig.HEAD_PITCH_DROWSY_DEGREES
+        )
+        yaw_score = self.angle_risk(
+            deltas["yaw"],
+            DrowsinessConfig.HEAD_YAW_WARN_DEGREES,
+            DrowsinessConfig.HEAD_YAW_DROWSY_DEGREES
+        )
+        roll_score = self.angle_risk(
+            deltas["roll"],
+            DrowsinessConfig.HEAD_ROLL_WARN_DEGREES,
+            DrowsinessConfig.HEAD_ROLL_DROWSY_DEGREES
+        )
+        legacy_score = max(0.0, min((legacy_ratio - 0.55) / 0.35, 1.25))
+        pose_score = max(pitch_score, yaw_score, roll_score, legacy_score)
+
+        if pose_score < 0.20:
+            alpha = DrowsinessConfig.HEAD_POSE_BASELINE_ALPHA
+            for key in ["pitch", "yaw", "roll"]:
+                self.pose_baseline[key] = (
+                    (1.0 - alpha) * self.pose_baseline[key]
+                    + alpha * smooth_angles[key]
+                )
+
+        metrics = {
+            "head_pitch": round(smooth_angles["pitch"], 1),
+            "head_yaw": round(smooth_angles["yaw"], 1),
+            "head_roll": round(smooth_angles["roll"], 1),
+            "head_pitch_delta": round(deltas["pitch"], 1),
+            "head_yaw_delta": round(deltas["yaw"], 1),
+            "head_roll_delta": round(deltas["roll"], 1),
+            "legacy_head_ratio": round(legacy_ratio, 3)
+        }
+
+        return round(pose_score, 3), metrics
+
     def get_face_center_and_area(self, face_box):
         x1, y1, x2, y2 = face_box
         cx = int((x1 + x2) / 2)
@@ -193,7 +357,7 @@ class DrowsinessDetector:
         min_rgb = np.minimum(np.minimum(r, g), b)
         gray = 0.114 * b + 0.587 * g + 0.299 * r
 
-        skin = (
+        rgb_skin = (
             (r > 80)
             & (g > 30)
             & (b > 15)
@@ -201,6 +365,28 @@ class DrowsinessDetector:
             & (r > b)
             & ((max_rgb - min_rgb) > 12)
         )
+        hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+        ycrcb = cv2.cvtColor(crop, cv2.COLOR_BGR2YCrCb)
+
+        h_channel = hsv[:, :, 0]
+        s_channel = hsv[:, :, 1]
+        v_channel = hsv[:, :, 2]
+        cr_channel = ycrcb[:, :, 1]
+        cb_channel = ycrcb[:, :, 2]
+
+        hsv_skin = (
+            (((h_channel <= 25) | (h_channel >= 165)))
+            & (s_channel >= 25)
+            & (s_channel <= 190)
+            & (v_channel >= 45)
+        )
+        ycrcb_skin = (
+            (cr_channel >= 128)
+            & (cr_channel <= 178)
+            & (cb_channel >= 72)
+            & (cb_channel <= 138)
+        )
+        skin = rgb_skin | (hsv_skin & ycrcb_skin)
 
         return {
             "skin_ratio": float(np.mean(skin)),
@@ -208,6 +394,44 @@ class DrowsinessDetector:
             "mean_gray": float(np.mean(gray)),
             "texture": float(np.std(gray))
         }
+
+    def average_region_stats(self, stats_items):
+        valid_stats = [item for item in stats_items if item is not None]
+
+        if not valid_stats:
+            return {
+                "skin_ratio": 1.0,
+                "dark_ratio": 0.0,
+                "mean_gray": 128.0,
+                "texture": 32.0
+            }
+
+        return {
+            key: float(np.mean([item[key] for item in valid_stats]))
+            for key in ["skin_ratio", "dark_ratio", "mean_gray", "texture"]
+        }
+
+    def is_mask_like_mouth_region(self, mouth_stats, reference_skin_ratio):
+        if reference_skin_ratio < DrowsinessConfig.MASK_REFERENCE_SKIN_RATIO_MIN:
+            return False
+
+        mouth_skin_low = mouth_stats["skin_ratio"] < DrowsinessConfig.MOUTH_SKIN_RATIO_MIN
+        relative_drop = (
+            mouth_stats["skin_ratio"]
+            <= reference_skin_ratio * DrowsinessConfig.MASK_SKIN_RELATIVE_MAX
+        )
+        not_shadow = mouth_stats["dark_ratio"] <= DrowsinessConfig.MASK_SHADOW_DARK_RATIO_MAX
+        bright_enough = mouth_stats["mean_gray"] >= DrowsinessConfig.MASK_MOUTH_MEAN_GRAY_MIN
+
+        return bool(mouth_skin_low and relative_drop and not_shadow and bright_enough)
+
+    def update_mask_score(self, raw_mask_detected):
+        if raw_mask_detected:
+            self.mask_score = min(6.0, self.mask_score + 1.0)
+        else:
+            self.mask_score = max(0.0, self.mask_score - 0.85)
+
+        return self.mask_score >= DrowsinessConfig.MASK_CONFIRM_SCORE
 
     def estimate_face_cover(
         self,
@@ -227,12 +451,36 @@ class DrowsinessDetector:
 
         eye_indices = [33, 133, 159, 145, 362, 263, 386, 374]
         mouth_indices = [0, 13, 14, 17, 61, 78, 164, 291, 308, 152]
+        left_cheek_indices = [50, 101, 118, 187, 205]
+        right_cheek_indices = [280, 330, 347, 411, 425]
 
         eye_box = self.landmark_box(landmarks, eye_indices, w, h, padding=0.45)
         mouth_box = self.landmark_box(landmarks, mouth_indices, w, h, padding=0.35)
+        left_cheek_box = self.landmark_box(
+            landmarks,
+            left_cheek_indices,
+            w,
+            h,
+            padding=0.55
+        )
+        right_cheek_box = self.landmark_box(
+            landmarks,
+            right_cheek_indices,
+            w,
+            h,
+            padding=0.55
+        )
 
         eye_stats = self.region_stats(frame, eye_box)
         mouth_stats = self.region_stats(frame, mouth_box)
+        cheek_stats = self.average_region_stats([
+            self.region_stats(frame, left_cheek_box),
+            self.region_stats(frame, right_cheek_box)
+        ])
+        reference_skin_ratio = max(
+            cheek_stats["skin_ratio"],
+            mouth_stats["skin_ratio"]
+        )
 
         sunglasses_detected = (
             not eye_visible
@@ -242,11 +490,14 @@ class DrowsinessDetector:
             )
         )
 
-        mask_detected = (
+        raw_mask_detected = (
             eye_visible
-            and mouth_stats["skin_ratio"] < DrowsinessConfig.MOUTH_SKIN_RATIO_MIN
-            and mouth_stats["mean_gray"] > 45
+            and self.is_mask_like_mouth_region(
+                mouth_stats,
+                reference_skin_ratio
+            )
         )
+        mask_detected = self.update_mask_score(raw_mask_detected)
 
         mouth_visible = not mask_detected
 
@@ -296,20 +547,33 @@ class DrowsinessDetector:
         if face_box is None:
             return False
 
-        _, cy, area = self.get_face_center_and_area(face_box)
+        x1, y1, x2, y2 = face_box
+        cx, cy, area = self.get_face_center_and_area(face_box)
+        face_w = max(1, x2 - x1)
+        face_h = max(1, y2 - y1)
 
-        if self.prev_face_center_y is None or self.prev_face_area is None:
-            self.prev_face_center_y = cy
-            self.prev_face_area = area
+        if self.face_baseline_center is None or self.face_baseline_area is None:
+            self.face_baseline_center = (cx, cy)
+            self.face_baseline_area = area
             return False
 
-        y_change = abs(cy - self.prev_face_center_y)
-        area_change_ratio = abs(area - self.prev_face_area) / max(1, self.prev_face_area)
+        base_cx, base_cy = self.face_baseline_center
+
+        y_change = cy - base_cy
+        x_change = abs(cx - base_cx)
+        area_change_ratio = (area - self.face_baseline_area) / max(
+            1,
+            self.face_baseline_area
+        )
 
         self.prev_face_center_y = cy
         self.prev_face_area = area
 
-        is_leaning = y_change > 45 or area_change_ratio > 0.28
+        is_leaning = (
+            y_change > max(35, face_h * DrowsinessConfig.LEAN_CENTER_SHIFT_RATIO)
+            or x_change > max(45, face_w * DrowsinessConfig.LEAN_SIDE_SHIFT_RATIO)
+            or area_change_ratio > DrowsinessConfig.LEAN_AREA_INCREASE_RATIO
+        )
         now = time.time()
 
         if is_leaning:
@@ -317,6 +581,14 @@ class DrowsinessDetector:
                 self.leaning_start = now
         else:
             self.leaning_start = None
+            alpha = DrowsinessConfig.LEAN_BASELINE_ALPHA
+            self.face_baseline_center = (
+                (1.0 - alpha) * base_cx + alpha * cx,
+                (1.0 - alpha) * base_cy + alpha * cy
+            )
+            self.face_baseline_area = (
+                (1.0 - alpha) * self.face_baseline_area + alpha * area
+            )
 
         return is_leaning
 
@@ -325,6 +597,151 @@ class DrowsinessDetector:
             return False
 
         return time.time() - self.leaning_start < DrowsinessConfig.LEAN_GRACE_SECONDS
+
+    def trim_posture_events(self, now):
+        window = DrowsinessConfig.POSTURE_EVENT_WINDOW_SECONDS
+        self.nod_events = [
+            event_time for event_time in self.nod_events
+            if now - event_time <= window
+        ]
+        self.lean_events = [
+            event_time for event_time in self.lean_events
+            if now - event_time <= window
+        ]
+
+    def detect_nod_cycle(self, now, head_pose, pose_metrics, selected_face_box):
+        face_drop_ratio = 0.0
+
+        if (
+            selected_face_box is not None
+            and self.face_baseline_center is not None
+        ):
+            _, cy, _ = self.get_face_center_and_area(selected_face_box)
+            _, base_cy = self.face_baseline_center
+            face_h = max(1, selected_face_box[3] - selected_face_box[1])
+            face_drop_ratio = max(0.0, (cy - base_cy) / face_h)
+
+        strong_pose_drop = (
+            head_pose >= DrowsinessConfig.NOD_STRONG_DOWN_SCORE_THRESHOLD
+        )
+        strong_face_drop = (
+            face_drop_ratio >= DrowsinessConfig.NOD_STRONG_FACE_DROP_RATIO
+        )
+        combined_pose_drop = (
+            head_pose >= DrowsinessConfig.NOD_DOWN_SCORE_THRESHOLD
+            and face_drop_ratio >= DrowsinessConfig.NOD_FACE_DROP_RATIO
+        )
+        downward_pose = strong_pose_drop or strong_face_drop or combined_pose_drop
+        recovered_pose = (
+            head_pose <= DrowsinessConfig.NOD_RECOVERY_SCORE_THRESHOLD
+            and face_drop_ratio < DrowsinessConfig.NOD_FACE_DROP_RATIO * 0.55
+        )
+
+        posture_event = None
+
+        if self.nod_phase == "stable":
+            if downward_pose:
+                self.nod_phase = "down"
+                self.nod_down_started_at = now
+
+        elif self.nod_phase == "down":
+            duration = now - self.nod_down_started_at
+
+            if recovered_pose:
+                is_valid_duration = (
+                    DrowsinessConfig.NOD_MIN_SECONDS
+                    <= duration
+                    <= DrowsinessConfig.NOD_MAX_SECONDS
+                )
+                is_after_cooldown = (
+                    now - self.last_posture_event_at
+                    >= DrowsinessConfig.POSTURE_EVENT_COOLDOWN_SECONDS
+                )
+
+                if is_valid_duration and is_after_cooldown:
+                    self.nod_events.append(now)
+                    self.last_posture_event_at = now
+                    posture_event = "HEAD_NOD"
+
+                self.nod_phase = "stable"
+                self.nod_down_started_at = None
+
+            elif duration > DrowsinessConfig.NOD_MAX_SECONDS:
+                self.nod_phase = "stable"
+                self.nod_down_started_at = None
+
+        return posture_event
+
+    def update_posture_events(
+        self,
+        now,
+        is_leaning,
+        head_pose,
+        pose_metrics,
+        selected_face_box
+    ):
+        self.trim_posture_events(now)
+        posture_event = self.detect_nod_cycle(
+            now,
+            head_pose,
+            pose_metrics,
+            selected_face_box
+        )
+
+        is_after_cooldown = (
+            now - self.last_posture_event_at
+            >= DrowsinessConfig.POSTURE_EVENT_COOLDOWN_SECONDS
+        )
+
+        if is_leaning and not self.previous_leaning and is_after_cooldown:
+            self.lean_events.append(now)
+            self.last_posture_event_at = now
+
+            if posture_event is None:
+                posture_event = "LEAN_REPEAT"
+
+        self.previous_leaning = is_leaning
+        self.trim_posture_events(now)
+
+        nod_count = len(self.nod_events)
+        lean_count = len(self.lean_events)
+        posture_score = 0.0
+
+        if nod_count >= DrowsinessConfig.NOD_REPEAT_WARNING_COUNT:
+            posture_score += 1.2
+
+        if nod_count >= DrowsinessConfig.NOD_REPEAT_DROWSY_COUNT:
+            posture_score += 1.4
+
+        if lean_count >= DrowsinessConfig.LEAN_REPEAT_WARNING_COUNT:
+            posture_score += 0.8
+
+        if lean_count >= DrowsinessConfig.LEAN_REPEAT_DROWSY_COUNT:
+            posture_score += 1.0
+
+        if nod_count and lean_count:
+            posture_score += 0.4
+
+        if nod_count >= DrowsinessConfig.NOD_REPEAT_DROWSY_COUNT:
+            posture_status = "HEAD_NOD_REPEAT"
+        elif lean_count >= DrowsinessConfig.LEAN_REPEAT_DROWSY_COUNT:
+            posture_status = "LEAN_REPEAT"
+        elif nod_count >= DrowsinessConfig.NOD_REPEAT_WARNING_COUNT:
+            posture_status = "HEAD_NOD_WARNING"
+        elif lean_count >= DrowsinessConfig.LEAN_REPEAT_WARNING_COUNT:
+            posture_status = "LEAN_WARNING"
+        elif posture_event:
+            posture_status = posture_event
+        else:
+            posture_status = "STABLE"
+
+        return {
+            "posture_event": posture_event,
+            "posture_status": posture_status,
+            "posture_score": round(posture_score, 2),
+            "nod_count": nod_count,
+            "lean_event_count": lean_count
+        }
 
     def is_bad_camera_grace(self, confidence):
         now = time.time()
@@ -414,6 +831,15 @@ class DrowsinessDetector:
         ear = 0.0
         mar = 0.0
         head_pose = 0.0
+        pose_metrics = {
+            "head_pitch": 0.0,
+            "head_yaw": 0.0,
+            "head_roll": 0.0,
+            "head_pitch_delta": 0.0,
+            "head_yaw_delta": 0.0,
+            "head_roll_delta": 0.0,
+            "legacy_head_ratio": 0.0
+        }
         confidence = 0.0
         visible_eye_count = 0
         eye_visible = False
@@ -423,6 +849,13 @@ class DrowsinessDetector:
         eye_closed_duration = 0.0
         yawn_duration = 0.0
         is_leaning = False
+        posture_metrics = {
+            "posture_event": None,
+            "posture_status": "STABLE",
+            "posture_score": 0.0,
+            "nod_count": 0,
+            "lean_event_count": 0
+        }
 
         if selected_face_box is not None and landmarks is not None:
             ear, visible_eye_count, eye_visible = self.calculate_ear(
@@ -432,7 +865,11 @@ class DrowsinessDetector:
             )
 
             mar = self.calculate_mar(landmarks, frame_w, frame_h)
-            head_pose = self.calculate_head_pose_score(landmarks, frame_w, frame_h)
+            head_pose, pose_metrics = self.calculate_head_pose_metrics(
+                landmarks,
+                frame_w,
+                frame_h
+            )
             confidence = self.estimate_confidence(
                 selected_face_box,
                 frame_w,
@@ -503,7 +940,16 @@ class DrowsinessDetector:
 
         bad_camera = detection_mode == "CAMERA_BAD_MODE" and face_count > 0
         bad_camera_grace = self.is_bad_camera_grace(confidence)
-        leaning_grace = self.is_in_lean_grace()
+        posture_metrics = self.update_posture_events(
+            now=now,
+            is_leaning=is_leaning,
+            head_pose=head_pose,
+            pose_metrics=pose_metrics,
+            selected_face_box=selected_face_box
+        )
+        posture_score = posture_metrics["posture_score"]
+        repeated_posture = posture_score >= 1.2
+        leaning_grace = self.is_in_lean_grace() and not repeated_posture
 
         full_face_modes = {"FULL_FACE_MODE"}
         eye_pose_modes = {"MASK_EYE_POSE_MODE", "EYE_POSE_MODE"}
@@ -537,8 +983,33 @@ class DrowsinessDetector:
             else:
                 self.drowsy_score = max(0.0, self.drowsy_score - 0.35)
 
+            should_apply_posture_score = (
+                posture_score > 0
+                and (
+                    posture_metrics["posture_event"] is not None
+                    or now - self.last_posture_score_at >= 2.0
+                )
+            )
+
+            if should_apply_posture_score:
+                self.drowsy_score += posture_score
+                self.last_posture_score_at = now
+
         else:
-            self.drowsy_score = max(0.0, self.drowsy_score - 0.45)
+            should_apply_posture_score = (
+                repeated_posture
+                and not bad_camera_grace
+                and (
+                    posture_metrics["posture_event"] is not None
+                    or now - self.last_posture_score_at >= 2.0
+                )
+            )
+
+            if should_apply_posture_score:
+                self.drowsy_score += posture_score * 0.65
+                self.last_posture_score_at = now
+            else:
+                self.drowsy_score = max(0.0, self.drowsy_score - 0.45)
 
         if detection_mode in full_face_modes:
             if (
@@ -592,8 +1063,22 @@ class DrowsinessDetector:
         ):
             state = "DROWSY_CONFIRMED"
             is_drowsy = True
+        elif (
+            repeated_posture
+            and posture_metrics["nod_count"] >= DrowsinessConfig.NOD_REPEAT_DROWSY_COUNT
+            and self.drowsy_score >= DrowsinessConfig.WARNING_LIMIT
+        ):
+            state = "DROWSY_CONFIRMED"
+            is_drowsy = True
         elif self.drowsy_score >= DrowsinessConfig.WARNING_LIMIT:
-            if detection_mode == "SUNGLASSES_MOUTH_POSE_MODE":
+            if posture_metrics["posture_status"] in {
+                "HEAD_NOD_REPEAT",
+                "HEAD_NOD_WARNING",
+                "LEAN_REPEAT",
+                "LEAN_WARNING"
+            }:
+                state = "WARNING_POSTURE_MODE"
+            elif detection_mode == "SUNGLASSES_MOUTH_POSE_MODE":
                 state = "WARNING_SUNGLASSES_MODE"
             elif detection_mode == "MASK_EYE_POSE_MODE":
                 state = "WARNING_MASK_MODE"
@@ -615,6 +1100,7 @@ class DrowsinessDetector:
             "ear": round(ear, 3),
             "mar": round(mar, 3),
             "head_pose": round(head_pose, 3),
+            **pose_metrics,
             "confidence": confidence,
             "visible_eye_count": visible_eye_count,
             "eye_visible": eye_visible,
@@ -627,6 +1113,7 @@ class DrowsinessDetector:
             "state": state,
             "is_drowsy": is_drowsy,
             "detection_mode": detection_mode,
+            **posture_metrics,
             "fallback_score": fallback_score,
             "head_down_duration": head_down_duration,
             "fallback_yawn_duration": fallback_yawn_duration,

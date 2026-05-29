@@ -6,11 +6,12 @@ import time
 from threading import Lock, Thread
 
 import mediapipe as mp
-from flask import Flask, Response, jsonify, render_template
+from flask import Flask, Response, jsonify, render_template, request
 from flask_socketio import SocketIO
 
 from config import AppConfig, MapConfig
 from services.alert_logger import AlertLogger
+from services.camera_lighting import CameraLightingController
 from services.driver_selector import DriverSelector
 from services.drowsiness_detector import DrowsinessDetector
 from services.location_service import LocationService
@@ -29,6 +30,7 @@ location_service = LocationService()
 driver_selector = DriverSelector()
 drowsiness_detector = DrowsinessDetector()
 alert_logger = AlertLogger()
+lighting_controller = CameraLightingController()
 
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(
@@ -51,13 +53,17 @@ def beep_alert():
 
 
 def enhance_frame(frame):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    brightness = gray.mean()
+    return lighting_controller.enhance(frame)
 
-    if brightness < 75:
-        frame = cv2.convertScaleAbs(frame, alpha=1.55, beta=45)
 
-    return frame
+def open_camera():
+    if platform.system().lower() == "windows":
+        cap = cv2.VideoCapture(AppConfig.CAMERA_INDEX, cv2.CAP_DSHOW)
+    else:
+        cap = cv2.VideoCapture(AppConfig.CAMERA_INDEX)
+
+    lighting_controller.configure_capture(cap)
+    return cap
 
 
 def find_stops_auto_radius(lat, lon, max_radius=MapConfig.DEFAULT_RADIUS, heading=None):
@@ -90,7 +96,7 @@ def draw_driver_roi(frame):
     )
 
 
-def draw_state(frame, result, face_count, selected_face_box):
+def draw_state(frame, result, face_count, selected_face_box, lighting_info=None):
     h, w, _ = frame.shape
     state = result["state"]
 
@@ -107,6 +113,9 @@ def draw_state(frame, result, face_count, selected_face_box):
     elif state == "WARNING_MASK_MODE":
         color = (0, 165, 255)
         label = "CANH BAO - KHAU TRANG"
+    elif state == "WARNING_POSTURE_MODE":
+        color = (0, 140, 255)
+        label = "CANH BAO TU THE NGU GAT"
     elif state == "SUNGLASSES_MODE":
         color = (255, 255, 0)
         label = "CHE DO KINH RAM"
@@ -152,11 +161,33 @@ def draw_state(frame, result, face_count, selected_face_box):
     overlays = [
         (f"EAR: {result['ear']:.2f}", h - 180, (0, 255, 0)),
         (f"MAR: {result['mar']:.2f}", h - 150, (255, 0, 255)),
-        (f"Pose: {result['head_pose']:.2f}", h - 120, (255, 255, 0)),
+        (
+            f"Pose: {result['head_pose']:.2f} "
+            f"P/Y/R: {result['head_pitch_delta']:.0f}/"
+            f"{result['head_yaw_delta']:.0f}/{result['head_roll_delta']:.0f}",
+            h - 120,
+            (255, 255, 0)
+        ),
         (f"Score: {result['drowsy_score']:.1f}", h - 90, (0, 255, 255)),
-        (f"Mode: {result['detection_mode']}", h - 60, (255, 255, 255)),
+        (
+            f"Posture: {result['posture_status']} "
+            f"N:{result['nod_count']} L:{result['lean_event_count']}",
+            h - 60,
+            (180, 220, 255)
+        ),
         (f"Faces: {face_count} Conf: {result['confidence']:.2f}", h - 30, (255, 255, 255))
     ]
+
+    if lighting_info:
+        overlays.insert(
+            0,
+            (
+                f"Light: {lighting_info['lighting_mode']} "
+                f"{lighting_info['brightness']:.0f}",
+                h - 210,
+                (180, 255, 255)
+            )
+        )
 
     for text, y, color in overlays:
         cv2.putText(
@@ -174,7 +205,14 @@ def camera_loop():
     global output_frame
     global latest_detection_result
 
-    cap = cv2.VideoCapture(AppConfig.CAMERA_INDEX)
+    cap = open_camera()
+    lighting_info = {
+        "lighting_mode": "NORMAL",
+        "brightness": 0.0,
+        "contrast": 0.0,
+        "dark_ratio": 0.0,
+        "glare_ratio": 0.0
+    }
 
     while True:
         ret, frame = cap.read()
@@ -183,7 +221,8 @@ def camera_loop():
             time.sleep(0.05)
             continue
 
-        frame = enhance_frame(frame)
+        frame, lighting_info = enhance_frame(frame)
+        lighting_controller.tune_capture(cap, lighting_info["lighting_mode"])
         h, w, _ = frame.shape
         draw_driver_roi(frame)
 
@@ -216,7 +255,7 @@ def camera_loop():
         )
 
         latest_detection_result = result.copy()
-        draw_state(frame, result, face_count, selected_face_box)
+        draw_state(frame, result, face_count, selected_face_box, lighting_info)
 
         if result["is_drowsy"] and result["can_alert"]:
             Thread(target=beep_alert, daemon=True).start()
@@ -229,6 +268,7 @@ def camera_loop():
         driver_config = driver_selector.get_config()
         socketio.emit("update_data", {
             **result,
+            **lighting_info,
             "face_count": face_count,
             "driver_side": driver_config["side"],
             "driver_lock": driver_config["lock_driver"],
@@ -292,6 +332,50 @@ def get_location_by_ip():
     })
 
 
+@app.route("/api/geocode")
+def geocode_address():
+    query = request.args.get("q", "").strip()
+
+    if not query:
+        return jsonify({
+            "success": False,
+            "message": "Vui lòng nhập địa chỉ"
+        }), 400
+
+    try:
+        results = osm_service.geocode_address(query)
+        return jsonify({
+            "success": True,
+            "results": results
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e),
+            "results": []
+        }), 500
+
+
+@app.route("/api/route")
+def get_route():
+    try:
+        start_lat = float(request.args.get("start_lat"))
+        start_lon = float(request.args.get("start_lon"))
+        end_lat = float(request.args.get("end_lat"))
+        end_lon = float(request.args.get("end_lon"))
+
+        route = osm_service.get_route(start_lat, start_lon, end_lat, end_lon)
+        return jsonify({
+            "success": True,
+            "route": route
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+
+
 @app.route("/api/alerts")
 def get_alert_logs():
     return jsonify({
@@ -315,6 +399,11 @@ def find_stops(data):
         result = find_stops_auto_radius(lat, lon, radius, heading)
         radius_used = result["radius_used"]
         stops = result["stops"]
+        nearest_stop = min(
+            stops,
+            key=lambda item: item.get("distance_km", float("inf")),
+            default=None
+        )
 
         location = {
             "lat": lat,
@@ -331,7 +420,9 @@ def find_stops(data):
             "lon": lon,
             "radius_used": radius_used,
             "heading": heading,
-            "stops": stops
+            "stops": stops,
+            "recommended_stop": stops[0] if stops else None,
+            "nearest_stop": nearest_stop
         })
 
     except Exception as e:
@@ -388,5 +479,6 @@ if __name__ == "__main__":
         app,
         host=AppConfig.HOST,
         port=AppConfig.PORT,
-        debug=AppConfig.DEBUG
+        debug=AppConfig.DEBUG,
+        allow_unsafe_werkzeug=True
     )

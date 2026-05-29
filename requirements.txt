@@ -7,6 +7,7 @@ opencv-python==4.9.0.80
 # ===== WEB APP =====
 flask==3.0.3
 flask-socketio==5.3.6
+simple-websocket==1.0.0
 
 # ===== MAP / API =====
 requests==2.31.0

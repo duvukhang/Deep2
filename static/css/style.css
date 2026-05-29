@@ -158,6 +158,26 @@ body {
     margin-bottom: 14px;
 }
 
+.address-route-controls {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.address-input {
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.route-status {
+    min-height: 24px;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
 .btn-custom {
     border-radius: 12px;
     font-weight: 700;
@@ -248,6 +268,28 @@ a:hover {
     color: var(--primary);
 }
 
+.popup-route-btn,
+.inline-route-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    margin-left: 6px;
+    padding: 4px 9px;
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    border-radius: 8px;
+    background: rgba(56, 189, 248, 0.14);
+    color: #e0f2fe;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.popup-route-btn:hover,
+.inline-route-btn:hover {
+    background: rgba(56, 189, 248, 0.25);
+}
+
 @media (max-width: 992px) {
     .app-header {
         flex-direction: column;
@@ -298,6 +340,10 @@ a:hover {
     .map-controls {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .address-route-controls {
+        grid-template-columns: 1fr;
     }
 
     .radius-select {

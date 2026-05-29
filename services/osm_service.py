@@ -15,6 +15,7 @@ class OSMService:
         ]
         self.overpass_url = self.overpass_urls[0]
         self.nominatim_url = "https://nominatim.openstreetmap.org/search"
+        self.osrm_route_url = "https://router.project-osrm.org/route/v1/driving"
         self.good_stop_score = 65
         self.cache_ttl_seconds = 600
         self.cache = {}
@@ -394,6 +395,101 @@ class OSMService:
 
         return self.unique_and_sort(stops)
 
+    def geocode_address(self, query, limit=5):
+        clean_query = (query or "").strip()
+
+        if not clean_query:
+            return []
+
+        response = requests.get(
+            self.nominatim_url,
+            params={
+                "q": clean_query,
+                "format": "jsonv2",
+                "addressdetails": 1,
+                "limit": int(limit),
+                "accept-language": "vi,en"
+            },
+            headers=self.headers,
+            timeout=12
+        )
+        response.raise_for_status()
+
+        results = []
+
+        for item in response.json():
+            try:
+                lat = float(item["lat"])
+                lon = float(item["lon"])
+            except Exception:
+                continue
+
+            display_name = item.get("display_name") or clean_query
+            results.append({
+                "name": item.get("name") or display_name.split(",")[0],
+                "display_name": display_name,
+                "lat": lat,
+                "lon": lon,
+                "type": item.get("type") or item.get("class") or "address"
+            })
+
+        return results
+
+    def get_route(self, start_lat, start_lon, end_lat, end_lon):
+        fallback_geometry = [
+            [float(start_lat), float(start_lon)],
+            [float(end_lat), float(end_lon)]
+        ]
+
+        try:
+            coordinates = (
+                f"{float(start_lon)},{float(start_lat)};"
+                f"{float(end_lon)},{float(end_lat)}"
+            )
+            response = requests.get(
+                f"{self.osrm_route_url}/{coordinates}",
+                params={
+                    "overview": "full",
+                    "geometries": "geojson",
+                    "steps": "false"
+                },
+                headers=self.headers,
+                timeout=12
+            )
+            response.raise_for_status()
+            data = response.json()
+            routes = data.get("routes") or []
+
+            if not routes:
+                raise ValueError("OSRM did not return a route")
+
+            route = routes[0]
+            geometry = route.get("geometry", {}).get("coordinates", [])
+            lat_lon_geometry = [
+                [float(lat), float(lon)]
+                for lon, lat in geometry
+            ]
+
+            if len(lat_lon_geometry) < 2:
+                lat_lon_geometry = fallback_geometry
+
+            return {
+                "source": "osrm",
+                "geometry": lat_lon_geometry,
+                "distance_km": round(float(route.get("distance", 0.0)) / 1000.0, 2),
+                "duration_min": round(float(route.get("duration", 0.0)) / 60.0, 1)
+            }
+
+        except Exception as exc:
+            distance_km = self.haversine(start_lat, start_lon, end_lat, end_lon)
+            return {
+                "source": "straight",
+                "message": str(exc),
+                "geometry": fallback_geometry,
+                "distance_km": round(distance_km, 2),
+                "duration_min": None
+            }
+
     def unique_and_sort(self, stops, limit=8):
         stops.sort(
             key=lambda item: (
@@ -460,7 +556,9 @@ class OSMService:
         radius_steps = [5000, 10000, 20000, 40000, 60000]
         best_result = {
             "radius_used": max_radius,
-            "stops": []
+            "stops": [],
+            "nearest_stop": None,
+            "recommended_stop": None
         }
 
         for radius in radius_steps:
@@ -470,9 +568,15 @@ class OSMService:
             stops = self.find_nearest_rest_stop(lat, lon, radius, heading)
 
             if stops:
+                nearest_stop = min(
+                    stops,
+                    key=lambda item: item.get("distance_km", float("inf"))
+                )
                 best_result = {
                     "radius_used": radius,
-                    "stops": stops
+                    "stops": stops,
+                    "nearest_stop": nearest_stop,
+                    "recommended_stop": stops[0]
                 }
 
                 if stops[0].get("rest_score", 0) >= self.good_stop_score:

@@ -3,12 +3,30 @@ const socket = io();
 let requested = false;
 let map = null;
 let userMarker = null;
+let destinationMarker = null;
+let routeLayer = null;
+let destinationRouteLayer = null;
 let poiMarkers = [];
 let lastDrowsyTime = 0;
+let lastKnownLocation = null;
+let pendingRouteRequest = null;
 
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.innerText = value;
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function setRouteStatus(value) {
+  setText("route_status", value);
 }
 
 function setStatusBox(state, isDrowsy) {
@@ -23,6 +41,9 @@ function setStatusBox(state, isDrowsy) {
     status.className = "alert-box alert alert-warning text-center";
   } else if (state === "WARNING_MASK_MODE") {
     status.innerText = "CẢNH BÁO - KHẨU TRANG";
+    status.className = "alert-box alert alert-warning text-center";
+  } else if (state === "WARNING_POSTURE_MODE") {
+    status.innerText = "CẢNH BÁO TƯ THẾ NGỦ GẬT";
     status.className = "alert-box alert alert-warning text-center";
   } else if (state === "SUNGLASSES_MODE") {
     status.innerText = "CHẾ ĐỘ KÍNH RÂM";
@@ -57,6 +78,30 @@ function modeLabel(mode) {
   };
 
   return labels[mode] || mode || "FULL_FACE_MODE";
+}
+
+function lightingLabel(mode) {
+  const labels = {
+    NORMAL: "Bình thường",
+    LOW_LIGHT: "Tăng sáng",
+    GLARE: "Giảm chói",
+    LOW_CONTRAST: "Tăng tương phản"
+  };
+
+  return labels[mode] || mode || "Bình thường";
+}
+
+function postureLabel(status) {
+  const labels = {
+    STABLE: "Ổn định",
+    HEAD_NOD: "Vừa gật đầu",
+    HEAD_NOD_WARNING: "Gật đầu lặp lại",
+    HEAD_NOD_REPEAT: "Gật đầu nhiều lần",
+    LEAN_REPEAT: "Đổ/chồm người",
+    LEAN_WARNING: "Đổ/chồm lặp lại"
+  };
+
+  return labels[status] || status || "Ổn định";
 }
 
 function occlusionLabel(data) {
@@ -95,6 +140,45 @@ function updateUserMarker(lat, lon, label = "Vị trí hiện tại") {
     .openPopup();
 }
 
+function updateDestinationMarker(destination) {
+  if (!map || !destination) return;
+
+  if (destinationMarker) {
+    map.removeLayer(destinationMarker);
+  }
+
+  destinationMarker = L.marker([destination.lat, destination.lon])
+    .addTo(map)
+    .bindPopup(`<b>${escapeHtml(destination.name)}</b><br>${escapeHtml(destination.display_name)}`);
+}
+
+function clearRouteLayers() {
+  if (!map) return;
+
+  if (routeLayer) {
+    map.removeLayer(routeLayer);
+    routeLayer = null;
+  }
+
+  if (destinationRouteLayer) {
+    map.removeLayer(destinationRouteLayer);
+    destinationRouteLayer = null;
+  }
+}
+
+function drawRouteLayer(route, options = {}) {
+  if (!map || !route || !route.geometry || route.geometry.length < 2) return null;
+
+  const layer = L.polyline(route.geometry, {
+    color: options.color || "#38bdf8",
+    weight: options.weight || 5,
+    opacity: options.opacity || 0.9,
+    dashArray: options.dashArray || null
+  }).addTo(map);
+
+  return layer;
+}
+
 function clearPoiMarkers() {
   if (!map) return;
 
@@ -109,11 +193,18 @@ function addPoiMarker(stop) {
   if (!map || !stop.lat || !stop.lon) return;
 
   const routeInfo = stop.route_text ? `<br>${stop.route_text}` : "";
+  const encodedName = encodeURIComponent(stop.name || "điểm nghỉ");
   const popupHtml = `
-    <b>${stop.name}</b><br>
-    ${stop.type}<br>
+    <b>${escapeHtml(stop.name)}</b><br>
+    ${escapeHtml(stop.type)}<br>
     Cách khoảng ${stop.distance_text}${routeInfo}<br>
     <a href="${stop.direction_url}" target="_blank">Chỉ đường</a>
+    <button
+      class="popup-route-btn"
+      onclick="routeToStop(${Number(stop.lat)}, ${Number(stop.lon)}, decodeURIComponent('${encodedName}'))"
+    >
+      Dẫn tới đây
+    </button>
   `;
 
   const marker = L.marker([stop.lat, stop.lon])
@@ -183,7 +274,123 @@ async function getBestLocation() {
   }
 }
 
-async function requestNearbyStops() {
+function bearingBetween(lat1, lon1, lat2, lon2) {
+  const toRad = value => value * Math.PI / 180;
+  const toDeg = value => value * 180 / Math.PI;
+  const lat1Rad = toRad(lat1);
+  const lat2Rad = toRad(lat2);
+  const deltaLon = toRad(lon2 - lon1);
+  const y = Math.sin(deltaLon) * Math.cos(lat2Rad);
+  const x = (
+    Math.cos(lat1Rad) * Math.sin(lat2Rad)
+    - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLon)
+  );
+
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+function findNearestStop(stops) {
+  if (!stops || stops.length === 0) return null;
+
+  return stops.reduce((nearest, stop) => {
+    if (!nearest) return stop;
+    return Number(stop.distance_km) < Number(nearest.distance_km) ? stop : nearest;
+  }, null);
+}
+
+async function fetchRoute(start, end) {
+  const params = new URLSearchParams({
+    start_lat: start.lat,
+    start_lon: start.lon,
+    end_lat: end.lat,
+    end_lon: end.lon
+  });
+  const res = await fetch(`/api/route?${params.toString()}`);
+  const data = await res.json();
+
+  if (!data.success) {
+    throw new Error(data.message || "Không vẽ được tuyến đường");
+  }
+
+  return data.route;
+}
+
+async function drawRouteToStop(stop, destination = null) {
+  if (!lastKnownLocation || !stop) return;
+
+  clearRouteLayers();
+  setRouteStatus(`Đang vẽ đường tới ${stop.name}...`);
+
+  const start = {
+    lat: lastKnownLocation.lat,
+    lon: lastKnownLocation.lon
+  };
+  const stopPoint = {
+    lat: stop.lat,
+    lon: stop.lon
+  };
+
+  const route = await fetchRoute(start, stopPoint);
+  routeLayer = drawRouteLayer(route, {
+    color: "#38bdf8",
+    weight: 6
+  });
+
+  let status = `Đường tới ${stop.name}: ${route.distance_km} km`;
+
+  if (route.duration_min !== null) {
+    status += `, khoảng ${route.duration_min} phút`;
+  }
+
+  if (destination) {
+    const destinationRoute = await fetchRoute(stopPoint, destination);
+    destinationRouteLayer = drawRouteLayer(destinationRoute, {
+      color: "#94a3b8",
+      weight: 4,
+      opacity: 0.72,
+      dashArray: "8 8"
+    });
+  }
+
+  const fitItems = [];
+  if (routeLayer) fitItems.push(routeLayer);
+  if (destinationRouteLayer) fitItems.push(destinationRouteLayer);
+  if (userMarker) fitItems.push(userMarker);
+  if (destinationMarker) fitItems.push(destinationMarker);
+
+  if (fitItems.length > 0) {
+    const group = L.featureGroup(fitItems);
+    map.fitBounds(group.getBounds().pad(0.18));
+  }
+
+  setRouteStatus(status);
+}
+
+async function routeToStop(lat, lon, name) {
+  try {
+    if (!lastKnownLocation) {
+      const coords = await getBestLocation();
+      lastKnownLocation = {
+        lat: coords.latitude,
+        lon: coords.longitude
+      };
+      initMap(lastKnownLocation.lat, lastKnownLocation.lon);
+      updateUserMarker(lastKnownLocation.lat, lastKnownLocation.lon);
+    }
+
+    await drawRouteToStop({
+      lat,
+      lon,
+      name: name || "điểm nghỉ",
+      distance_km: 0
+    });
+  } catch (err) {
+    console.error("Lỗi vẽ đường:", err);
+    setRouteStatus("Không vẽ được đường tới điểm nghỉ này.");
+  }
+}
+
+async function requestNearbyStops(options = {}) {
   try {
     setText("location_text", "Đang lấy vị trí...");
 
@@ -193,6 +400,23 @@ async function requestNearbyStops() {
     const coords = await getBestLocation();
     const lat = coords.latitude;
     const lon = coords.longitude;
+    const destination = options.destination || null;
+    const heading = destination
+      ? bearingBetween(lat, lon, destination.lat, destination.lon)
+      : coords.heading;
+
+    lastKnownLocation = {
+      lat,
+      lon,
+      heading,
+      source: coords.source
+    };
+    pendingRouteRequest = options.routeToNearest
+      ? {
+          destination,
+          routeToNearest: true
+        }
+      : null;
 
     initMap(lat, lon);
 
@@ -201,6 +425,14 @@ async function requestNearbyStops() {
       : `Vị trí theo ${coords.source}`;
 
     updateUserMarker(lat, lon, label);
+
+    if (destination) {
+      updateDestinationMarker(destination);
+      setRouteStatus(`Đã tìm thấy: ${destination.display_name}`);
+    } else {
+      setRouteStatus("");
+      clearRouteLayers();
+    }
 
     setText(
       "location_text",
@@ -211,7 +443,7 @@ async function requestNearbyStops() {
       lat,
       lon,
       radius,
-      heading: coords.heading,
+      heading,
       speed: coords.speed
     });
   } catch (err) {
@@ -220,6 +452,38 @@ async function requestNearbyStops() {
       "location_text",
       "Không lấy được vị trí. Hãy bật quyền vị trí hoặc kiểm tra mạng."
     );
+    setRouteStatus("Không lấy được vị trí hiện tại.");
+  }
+}
+
+async function searchAddressAndRoute() {
+  const input = document.getElementById("address_input");
+  const query = input ? input.value.trim() : "";
+
+  if (!query) {
+    setRouteStatus("Nhập địa chỉ cần tìm đường.");
+    return;
+  }
+
+  try {
+    setRouteStatus("Đang tìm địa chỉ...");
+    const params = new URLSearchParams({ q: query });
+    const res = await fetch(`/api/geocode?${params.toString()}`);
+    const data = await res.json();
+
+    if (!data.success || !data.results || data.results.length === 0) {
+      setRouteStatus("Không tìm thấy địa chỉ phù hợp.");
+      return;
+    }
+
+    const destination = data.results[0];
+    await requestNearbyStops({
+      destination,
+      routeToNearest: true
+    });
+  } catch (err) {
+    console.error("Lỗi tìm đường:", err);
+    setRouteStatus("Không tìm đường được. Kiểm tra mạng hoặc địa chỉ.");
   }
 }
 
@@ -233,16 +497,32 @@ socket.on("update_data", data => {
   const fallbackScore = Number(data.fallback_score || 0);
   const headDownDuration = Number(data.head_down_duration || 0);
   const fallbackYawnDuration = Number(data.fallback_yawn_duration || 0);
+  const headPitchDelta = Number(data.head_pitch_delta || 0);
+  const headYawDelta = Number(data.head_yaw_delta || 0);
+  const headRollDelta = Number(data.head_roll_delta || 0);
+  const brightness = Number(data.brightness || 0);
+  const contrast = Number(data.contrast || 0);
+  const postureScore = Number(data.posture_score || 0);
 
   setText("ear_val", ear.toFixed(2));
   setText("threshold_val", threshold.toFixed(2));
   setText("mar_val", mar.toFixed(2));
   setText("pose_val", pose.toFixed(2));
+  setText(
+    "head_angles_val",
+    `${headPitchDelta.toFixed(0)}° / ${headYawDelta.toFixed(0)}° / ${headRollDelta.toFixed(0)}°`
+  );
   setText("score_val", score.toFixed(2));
   setText("state_val", data.state || "NORMAL");
   setText("face_count", data.face_count ?? 0);
   setText("visible_eye_count", data.visible_eye_count ?? 0);
   setText("confidence_val", confidence.toFixed(2));
+  setText("lighting_mode_val", lightingLabel(data.lighting_mode));
+  setText("brightness_val", `${brightness.toFixed(0)} / ${contrast.toFixed(0)}`);
+  setText("posture_status_val", postureLabel(data.posture_status));
+  setText("nod_count_val", data.nod_count ?? 0);
+  setText("lean_event_count_val", data.lean_event_count ?? 0);
+  setText("posture_score_val", postureScore.toFixed(2));
   setText("leaning_val", data.is_leaning ? "Có" : "Không");
   setText("occlusion", occlusionLabel(data));
   setText("detection_mode_val", modeLabel(data.detection_mode));
@@ -271,7 +551,7 @@ socket.on("update_data", data => {
   }
 });
 
-socket.on("rest_stops_data", data => {
+socket.on("rest_stops_data", async data => {
   const list = document.getElementById("rest_stops");
   if (!list) return;
 
@@ -284,6 +564,7 @@ socket.on("rest_stops_data", data => {
 
   if (!data.stops || data.stops.length === 0) {
     list.innerHTML = "<li>Không tìm thấy điểm nghỉ gần đây.</li>";
+    setRouteStatus("Không tìm thấy điểm nghỉ để dẫn đường.");
     return;
   }
 
@@ -294,22 +575,47 @@ socket.on("rest_stops_data", data => {
     const routeInfo = stop.route_text
       ? `<br><span>${stop.route_text}</span>`
       : "";
+    const encodedName = encodeURIComponent(stop.name || "điểm nghỉ");
 
     li.innerHTML = `
-      <b>${stop.name}</b><br>
-      Loại: ${stop.type}<br>
+      <b>${escapeHtml(stop.name)}</b><br>
+      Loại: ${escapeHtml(stop.type)}<br>
       Cách khoảng: ${stop.distance_text}${routeInfo}<br>
       <a href="${stop.map_url}" target="_blank">Mở trên OpenStreetMap</a>
       |
       <a href="${stop.direction_url}" target="_blank">Chỉ đường</a>
+      |
+      <button
+        class="inline-route-btn"
+        onclick="routeToStop(${Number(stop.lat)}, ${Number(stop.lon)}, decodeURIComponent('${encodedName}'))"
+      >
+        Dẫn tới đây
+      </button>
     `;
 
     list.appendChild(li);
     addPoiMarker(stop);
   });
 
+  if (pendingRouteRequest && pendingRouteRequest.routeToNearest) {
+    const nearestStop = data.nearest_stop || findNearestStop(data.stops);
+
+    if (nearestStop) {
+      try {
+        await drawRouteToStop(nearestStop, pendingRouteRequest.destination);
+      } catch (err) {
+        console.error("Lỗi vẽ đường tới điểm nghỉ gần nhất:", err);
+        setRouteStatus("Đã tìm được điểm nghỉ nhưng chưa vẽ được tuyến đường.");
+      }
+    }
+  }
+
   if (map && data.stops.length > 0) {
-    const groupItems = poiMarkers.concat(userMarker ? [userMarker] : []);
+    const groupItems = poiMarkers
+      .concat(userMarker ? [userMarker] : [])
+      .concat(destinationMarker ? [destinationMarker] : [])
+      .concat(routeLayer ? [routeLayer] : [])
+      .concat(destinationRouteLayer ? [destinationRouteLayer] : []);
 
     if (groupItems.length > 0) {
       const group = L.featureGroup(groupItems);
