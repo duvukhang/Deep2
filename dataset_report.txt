@@ -1,0 +1,64 @@
+DATASET AUDIT REPORT
+Data yaml: D:\HK6_BaiTapVeNhan\DoAn\DeepLearning\Deep2\configs\data.yaml
+Base path: D:\HK6_BaiTapVeNhan\DoAn\DeepLearning\Deep2\driver_drowsiness_Computer_Vision_Model
+Classes: eye_closed, eye_open, face, mouth_open
+
+[train]
+Images: 2557
+Labels: 2557
+Missing labels: 0
+Empty labels: 3
+Invalid labels: 0
+Unreadable images: 0
+Labels without image: 0
+Class counts: {'eye_closed': 646, 'eye_open': 673, 'face': 601, 'mouth_open': 640}
+Scenario keyword counts: {}
+
+[valid]
+Images: 288
+Labels: 288
+Missing labels: 0
+Empty labels: 0
+Invalid labels: 0
+Unreadable images: 0
+Labels without image: 0
+Class counts: {'eye_closed': 67, 'eye_open': 73, 'face': 70, 'mouth_open': 78}
+Scenario keyword counts: {}
+
+[test]
+Images: 577
+Labels: 577
+Missing labels: 0
+Empty labels: 0
+Invalid labels: 0
+Unreadable images: 0
+Labels without image: 0
+Class counts: {'eye_closed': 142, 'eye_open': 127, 'face': 167, 'mouth_open': 142}
+Scenario keyword counts: {}
+
+[Leakage]
+exact_hash: 0
+roboflow_origin: 420
+perceptual_hash: 0
+
+[Warnings]
+- Chua cai opencv-python nen bo qua kiem tra anh loi va perceptual hash.
+- Phat hien anh cung origin Roboflow giua train/valid/test, co nguy co data leakage.
+- train: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+- train: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+- train: It mau du lieu 'low_light' trong ten file; can bo sung neu muon robust thuc te.
+- train: It mau du lieu 'side_pose' trong ten file; can bo sung neu muon robust thuc te.
+- train: It mau du lieu 'head_down' trong ten file; can bo sung neu muon robust thuc te.
+- train: It mau du lieu 'leaning' trong ten file; can bo sung neu muon robust thuc te.
+- valid: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+- valid: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+- valid: It mau du lieu 'low_light' trong ten file; can bo sung neu muon robust thuc te.
+- valid: It mau du lieu 'side_pose' trong ten file; can bo sung neu muon robust thuc te.
+- valid: It mau du lieu 'head_down' trong ten file; can bo sung neu muon robust thuc te.
+- valid: It mau du lieu 'leaning' trong ten file; can bo sung neu muon robust thuc te.
+- test: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+- test: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+- test: It mau du lieu 'low_light' trong ten file; can bo sung neu muon robust thuc te.
+- test: It mau du lieu 'side_pose' trong ten file; can bo sung neu muon robust thuc te.
+- test: It mau du lieu 'head_down' trong ten file; can bo sung neu muon robust thuc te.
+- test: It mau du lieu 'leaning' trong ten file; can bo sung neu muon robust thuc te.
