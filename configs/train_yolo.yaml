@@ -1,0 +1,11 @@
+data: configs/data.yaml
+model: yolo11n.pt
+epochs: 150
+imgsz: 640
+batch: 8
+patience: 30
+seed: 42
+weight_decay: 0.0005
+dropout: 0.05
+close_mosaic: 15
+workers: 0

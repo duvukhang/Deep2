@@ -1,0 +1,12 @@
+data_dir: dataset_extracted
+seq_len: 30
+feature_dim: 256
+epochs: 80
+batch: 8
+lr: 0.0001
+weight_decay: 0.0001
+patience: 12
+label_smoothing: 0.03
+loss: auto
+seed: 42
+workers: 0
