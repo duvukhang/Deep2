@@ -77,7 +77,7 @@ class DrowsinessDetector:
         valid_ears = [ear for ear in [left_ear, right_ear] if ear is not None]
 
         if len(valid_ears) == 0:
-            return 0.0, 0, False
+            return 0.0, 0, False, None, None
 
         avg_ear = float(np.mean(valid_ears))
 
@@ -91,7 +91,15 @@ class DrowsinessDetector:
         if self.base_ear is None and len(self.ear_buffer) >= 10:
             self.base_ear = smooth_ear
 
-        return smooth_ear, len(valid_ears), True
+        return smooth_ear, len(valid_ears), True, left_ear, right_ear
+
+    def are_both_eyes_closed(self, left_ear, right_ear, threshold):
+        return (
+            left_ear is not None
+            and right_ear is not None
+            and left_ear < threshold
+            and right_ear < threshold
+        )
 
     def calculate_mar(self, landmarks, w, h):
         try:
@@ -482,11 +490,19 @@ class DrowsinessDetector:
             mouth_stats["skin_ratio"]
         )
 
-        sunglasses_detected = (
-            not eye_visible
-            and (
-                visible_eye_count == 0
-                or eye_stats["dark_ratio"] >= DrowsinessConfig.SUNGLASSES_DARK_RATIO_MIN
+        raw_sunglasses_detected = (
+            (
+                not eye_visible
+                and (
+                    visible_eye_count == 0
+                    or eye_stats["dark_ratio"] >= DrowsinessConfig.SUNGLASSES_DARK_RATIO_MIN
+                )
+            )
+            or (
+                eye_stats["dark_ratio"] >= DrowsinessConfig.SUNGLASSES_DARK_RATIO_MIN
+                and reference_skin_ratio >= DrowsinessConfig.SUNGLASSES_REFERENCE_SKIN_RATIO_MIN
+                and eye_stats["skin_ratio"]
+                <= reference_skin_ratio * DrowsinessConfig.SUNGLASSES_SKIN_RELATIVE_MAX
             )
         )
 
@@ -506,7 +522,7 @@ class DrowsinessDetector:
 
         return {
             "mouth_visible": mouth_visible,
-            "sunglasses_detected": sunglasses_detected,
+            "sunglasses_detected": raw_sunglasses_detected,
             "mask_detected": mask_detected
         }
 
@@ -843,6 +859,9 @@ class DrowsinessDetector:
         confidence = 0.0
         visible_eye_count = 0
         eye_visible = False
+        left_ear = None
+        right_ear = None
+        both_eyes_closed = False
         mouth_visible = False
         sunglasses_detected = False
         mask_detected = False
@@ -858,11 +877,13 @@ class DrowsinessDetector:
         }
 
         if selected_face_box is not None and landmarks is not None:
-            ear, visible_eye_count, eye_visible = self.calculate_ear(
-                landmarks,
-                frame_w,
-                frame_h
-            )
+            (
+                ear,
+                visible_eye_count,
+                eye_visible,
+                left_ear,
+                right_ear
+            ) = self.calculate_ear(landmarks, frame_w, frame_h)
 
             mar = self.calculate_mar(landmarks, frame_w, frame_h)
             head_pose, pose_metrics = self.calculate_head_pose_metrics(
@@ -899,9 +920,14 @@ class DrowsinessDetector:
             if self.base_ear
             else DrowsinessConfig.EAR_DEFAULT_THRESHOLD
         )
+        both_eyes_closed = self.are_both_eyes_closed(
+            left_ear,
+            right_ear,
+            threshold
+        )
 
         if eye_visible and ear > 0:
-            if ear < threshold:
+            if both_eyes_closed:
                 if self.eye_closed_start is None:
                     self.eye_closed_start = now
             else:
@@ -1104,6 +1130,9 @@ class DrowsinessDetector:
             "confidence": confidence,
             "visible_eye_count": visible_eye_count,
             "eye_visible": eye_visible,
+            "left_ear": round(left_ear, 3) if left_ear is not None else None,
+            "right_ear": round(right_ear, 3) if right_ear is not None else None,
+            "both_eyes_closed": both_eyes_closed,
             "mouth_visible": mouth_visible,
             "sunglasses_detected": sunglasses_detected,
             "mask_detected": mask_detected,

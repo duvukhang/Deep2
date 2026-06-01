@@ -59,6 +59,20 @@ class DrowsinessDetectorTest(unittest.TestCase):
         self.assertEqual(detector.angle_risk(8, 12, 28), 0.0)
         self.assertGreater(detector.angle_risk(24, 12, 28), 0.0)
 
+    def test_eye_closure_requires_both_eyes_closed(self):
+        detector = DrowsinessDetector()
+        threshold = 0.22
+
+        self.assertFalse(
+            detector.are_both_eyes_closed(0.10, 0.34, threshold)
+        )
+        self.assertFalse(
+            detector.are_both_eyes_closed(0.10, None, threshold)
+        )
+        self.assertTrue(
+            detector.are_both_eyes_closed(0.10, 0.11, threshold)
+        )
+
     def test_mask_region_needs_reliable_skin_reference_and_not_shadow(self):
         detector = DrowsinessDetector()
         mouth_stats = {
