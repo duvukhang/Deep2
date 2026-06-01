@@ -1,0 +1,55 @@
+2026-05-31 14:26:01,150 | INFO | train: 2557 images, 2557 labels, class_counts={'eye_closed': 646, 'eye_open': 673, 'face': 601, 'mouth_open': 640}
+2026-05-31 14:26:01,150 | INFO | valid: 288 images, 288 labels, class_counts={'eye_closed': 67, 'eye_open': 73, 'face': 70, 'mouth_open': 78}
+2026-05-31 14:26:01,150 | INFO | test: 577 images, 577 labels, class_counts={'eye_closed': 142, 'eye_open': 127, 'face': 167, 'mouth_open': 142}
+2026-05-31 14:26:01,152 | WARNING | Audit co 20 canh bao. Nen xem dataset_report.txt truoc khi train dai.
+2026-05-31 14:26:01,152 | WARNING |  - Phat hien anh cung origin Roboflow giua train/valid/test, co nguy co data leakage.
+2026-05-31 14:26:01,152 | WARNING |  - Phat hien anh gan trung nhau giua cac split theo perceptual hash.
+2026-05-31 14:26:01,153 | WARNING |  - train: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:26:01,153 | WARNING |  - train: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:26:01,153 | WARNING |  - train: It mau du lieu 'low_light' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:26:01,153 | WARNING |  - train: It mau du lieu 'side_pose' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:26:01,153 | WARNING |  - train: It mau du lieu 'head_down' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:26:01,153 | WARNING |  - train: It mau du lieu 'leaning' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:26:01,153 | WARNING |  - valid: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:26:01,153 | WARNING |  - valid: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:26:01,153 | INFO | Da tao YAML train YOLO voi path tuyet doi: logs\yolo_data_resolved.yaml
+2026-05-31 14:26:01,157 | INFO | Load YOLO model: yolo11n.  
+2026-05-31 14:26:01,246 | WARNING | Bo qua tham so YOLO khong duoc version Ultralytics nay ho tro: label_smoothing
+2026-05-31 14:29:07,598 | INFO | train: 2557 images, 2557 labels, class_counts={'eye_closed': 646, 'eye_open': 673, 'face': 601, 'mouth_open': 640}
+2026-05-31 14:29:07,598 | INFO | valid: 288 images, 288 labels, class_counts={'eye_closed': 67, 'eye_open': 73, 'face': 70, 'mouth_open': 78}
+2026-05-31 14:29:07,610 | INFO | test: 577 images, 577 labels, class_counts={'eye_closed': 142, 'eye_open': 127, 'face': 167, 'mouth_open': 142}
+2026-05-31 14:29:07,610 | WARNING | Audit co 20 canh bao. Nen xem dataset_report.txt truoc khi train dai.
+2026-05-31 14:29:07,610 | WARNING |  - Phat hien anh cung origin Roboflow giua train/valid/test, co nguy co data leakage.
+2026-05-31 14:29:07,610 | WARNING |  - Phat hien anh gan trung nhau giua cac split theo perceptual hash.
+2026-05-31 14:29:07,610 | WARNING |  - train: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:29:07,610 | WARNING |  - train: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:29:07,610 | WARNING |  - train: It mau du lieu 'low_light' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:29:07,610 | WARNING |  - train: It mau du lieu 'side_pose' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:29:07,610 | WARNING |  - train: It mau du lieu 'head_down' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:29:07,610 | WARNING |  - train: It mau du lieu 'leaning' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:29:07,610 | WARNING |  - valid: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:29:07,610 | WARNING |  - valid: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+2026-05-31 14:29:07,610 | INFO | Da tao YAML train YOLO voi path tuyet doi: logs\yolo_data_resolved.yaml
+2026-05-31 14:29:07,610 | INFO | Load YOLO model: yolo11n.pt
+2026-05-31 14:29:07,685 | WARNING | Bo qua tham so YOLO khong duoc version Ultralytics nay ho tro: label_smoothing
+2026-06-01 00:21:57,240 | INFO | train: 2557 images, 2557 labels, class_counts={'eye_closed': 646, 'eye_open': 673, 'face': 601, 'mouth_open': 640}
+2026-06-01 00:21:57,240 | INFO | valid: 288 images, 288 labels, class_counts={'eye_closed': 67, 'eye_open': 73, 'face': 70, 'mouth_open': 78}
+2026-06-01 00:21:57,240 | INFO | test: 577 images, 577 labels, class_counts={'eye_closed': 142, 'eye_open': 127, 'face': 167, 'mouth_open': 142}
+2026-06-01 00:21:57,240 | WARNING | Audit co 20 canh bao. Nen xem dataset_report.txt truoc khi train dai.
+2026-06-01 00:21:57,240 | WARNING |  - Phat hien anh cung origin Roboflow giua train/valid/test, co nguy co data leakage.
+2026-06-01 00:21:57,240 | WARNING |  - Phat hien anh gan trung nhau giua cac split theo perceptual hash.
+2026-06-01 00:21:57,240 | WARNING |  - train: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+2026-06-01 00:21:57,240 | WARNING |  - train: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+2026-06-01 00:21:57,240 | WARNING |  - train: It mau du lieu 'low_light' trong ten file; can bo sung neu muon robust thuc te.
+2026-06-01 00:21:57,240 | WARNING |  - train: It mau du lieu 'side_pose' trong ten file; can bo sung neu muon robust thuc te.
+2026-06-01 00:21:57,240 | WARNING |  - train: It mau du lieu 'head_down' trong ten file; can bo sung neu muon robust thuc te.
+2026-06-01 00:21:57,240 | WARNING |  - train: It mau du lieu 'leaning' trong ten file; can bo sung neu muon robust thuc te.
+2026-06-01 00:21:57,240 | WARNING |  - valid: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
+2026-06-01 00:21:57,240 | WARNING |  - valid: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
+2026-06-01 00:21:57,248 | INFO | Da tao YAML train YOLO voi path tuyet doi: logs\yolo_data_resolved.yaml
+2026-06-01 00:21:57,248 | INFO | Load YOLO model: yolo11n.pt
+2026-06-01 00:21:57,319 | WARNING | Bo qua tham so YOLO khong duoc version Ultralytics nay ho tro: label_smoothing
+2026-06-01 16:35:04,725 | INFO | Da copy best.pt -> weights/yolo_drowsy_best.pt
+2026-06-01 16:35:25,950 | INFO | valid | precision=0.9949 recall=0.9938 mAP50=0.9949 mAP50-95=0.9207
+2026-06-01 16:36:08,746 | INFO | test | precision=0.9922 recall=0.9957 mAP50=0.9950 mAP50-95=0.9266
+2026-06-01 16:36:08,746 | INFO | Hoan tat train YOLO. Neu dataset nho, hay uu tien yolo11n truoc; chi doi yolo11s khi du lieu da du da dang.

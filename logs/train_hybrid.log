@@ -1,0 +1,44 @@
+2026-06-01 17:43:37,373 | INFO | Train Hybrid tren device: cpu
+2026-06-01 17:43:37,398 | INFO | Train samples: 86 | class_counts={0: 44, 1: 42}
+2026-06-01 17:43:37,398 | INFO | Val samples: 10 | class_counts={0: 6, 1: 4}
+2026-06-01 17:43:37,408 | INFO | Class weights: [0.9767441153526306, 1.023255705833435] | imbalance_ratio=1.05
+2026-06-01 17:43:38,974 | INFO | Epoch 001 | train_loss=0.6244 train_f1=0.6250 | val_loss=0.6015 val_f1=0.7273 val_recall=1.0000
+2026-06-01 17:43:38,996 | INFO | Da luu weights/hybrid_best.pth theo val F1.
+2026-06-01 17:43:40,140 | INFO | Epoch 002 | train_loss=0.4078 train_f1=0.8333 | val_loss=0.4569 val_f1=0.8000 val_recall=1.0000
+2026-06-01 17:43:40,157 | INFO | Da luu weights/hybrid_best.pth theo val F1.
+2026-06-01 17:43:41,179 | INFO | Epoch 003 | train_loss=0.3776 train_f1=0.7467 | val_loss=0.4880 val_f1=0.8000 val_recall=1.0000
+2026-06-01 17:43:41,179 | INFO | Val F1 khong cai thien. Patience 1/12
+2026-06-01 17:43:42,191 | INFO | Epoch 004 | train_loss=0.3888 train_f1=0.7872 | val_loss=0.4779 val_f1=0.8000 val_recall=1.0000
+2026-06-01 17:43:42,191 | INFO | Val F1 khong cai thien. Patience 2/12
+2026-06-01 17:43:43,171 | INFO | Epoch 005 | train_loss=0.3150 train_f1=0.8736 | val_loss=0.3623 val_f1=0.8889 val_recall=1.0000
+2026-06-01 17:43:43,191 | INFO | Da luu weights/hybrid_best.pth theo val F1.
+2026-06-01 17:43:44,172 | INFO | Epoch 006 | train_loss=0.2180 train_f1=0.9318 | val_loss=0.2130 val_f1=1.0000 val_recall=1.0000
+2026-06-01 17:43:44,197 | INFO | Da luu weights/hybrid_best.pth theo val F1.
+2026-06-01 17:43:45,221 | INFO | Epoch 007 | train_loss=0.1461 train_f1=0.9639 | val_loss=0.1034 val_f1=1.0000 val_recall=1.0000
+2026-06-01 17:43:45,238 | INFO | Da luu weights/hybrid_best.pth theo val F1.
+2026-06-01 17:43:46,304 | INFO | Epoch 008 | train_loss=0.1494 train_f1=0.9535 | val_loss=0.1270 val_f1=0.8889 val_recall=1.0000
+2026-06-01 17:43:46,304 | INFO | Val F1 khong cai thien. Patience 1/12
+2026-06-01 17:43:47,331 | INFO | Epoch 009 | train_loss=0.1072 train_f1=0.9880 | val_loss=0.3289 val_f1=0.8000 val_recall=1.0000
+2026-06-01 17:43:47,331 | INFO | Val F1 khong cai thien. Patience 2/12
+2026-06-01 17:43:48,314 | INFO | Epoch 010 | train_loss=0.1088 train_f1=0.9882 | val_loss=0.1358 val_f1=0.8889 val_recall=1.0000
+2026-06-01 17:43:48,314 | INFO | Val F1 khong cai thien. Patience 3/12
+2026-06-01 17:43:49,455 | INFO | Epoch 011 | train_loss=0.0835 train_f1=1.0000 | val_loss=0.3126 val_f1=0.8000 val_recall=1.0000
+2026-06-01 17:43:49,455 | INFO | Val F1 khong cai thien. Patience 4/12
+2026-06-01 17:43:50,640 | INFO | Epoch 012 | train_loss=0.1107 train_f1=0.9880 | val_loss=0.1219 val_f1=0.8889 val_recall=1.0000
+2026-06-01 17:43:50,640 | INFO | Val F1 khong cai thien. Patience 5/12
+2026-06-01 17:43:51,667 | INFO | Epoch 013 | train_loss=0.0876 train_f1=1.0000 | val_loss=0.7128 val_f1=0.8000 val_recall=1.0000
+2026-06-01 17:43:51,667 | INFO | Val F1 khong cai thien. Patience 6/12
+2026-06-01 17:43:52,685 | INFO | Epoch 014 | train_loss=0.0885 train_f1=1.0000 | val_loss=0.1308 val_f1=0.8889 val_recall=1.0000
+2026-06-01 17:43:52,685 | INFO | Val F1 khong cai thien. Patience 7/12
+2026-06-01 17:43:53,803 | INFO | Epoch 015 | train_loss=0.0939 train_f1=0.9880 | val_loss=0.5918 val_f1=0.8000 val_recall=1.0000
+2026-06-01 17:43:53,803 | INFO | Val F1 khong cai thien. Patience 8/12
+2026-06-01 17:43:54,771 | INFO | Epoch 016 | train_loss=0.0818 train_f1=1.0000 | val_loss=0.2140 val_f1=0.8889 val_recall=1.0000
+2026-06-01 17:43:54,771 | INFO | Val F1 khong cai thien. Patience 9/12
+2026-06-01 17:43:55,745 | INFO | Epoch 017 | train_loss=0.0809 train_f1=1.0000 | val_loss=0.1881 val_f1=0.8889 val_recall=1.0000
+2026-06-01 17:43:55,745 | INFO | Val F1 khong cai thien. Patience 10/12
+2026-06-01 17:43:56,746 | INFO | Epoch 018 | train_loss=0.0810 train_f1=1.0000 | val_loss=0.2646 val_f1=0.8889 val_recall=1.0000
+2026-06-01 17:43:56,746 | INFO | Val F1 khong cai thien. Patience 11/12
+2026-06-01 17:43:57,762 | INFO | Epoch 019 | train_loss=0.0803 train_f1=1.0000 | val_loss=0.5997 val_f1=0.8000 val_recall=1.0000
+2026-06-01 17:43:57,762 | INFO | Val F1 khong cai thien. Patience 12/12
+2026-06-01 17:43:57,762 | INFO | Dung som de giam overfitting.
+2026-06-01 17:43:57,778 | INFO | Hoan tat train Hybrid. Best F1=1.0000

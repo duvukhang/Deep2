@@ -1,0 +1,44 @@
+{
+  "args": {
+    "data_dir": "dataset_extracted",
+    "seq_len": 30,
+    "batch": 8,
+    "epochs": 80,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "patience": 12,
+    "device": "0",
+    "seed": 42,
+    "num_workers": 0,
+    "feature_dim": 256,
+    "dropout": 0.3,
+    "label_smoothing": 0.03,
+    "loss": "auto",
+    "focal_gamma": 2.0,
+    "grad_clip": 5.0,
+    "strict": false
+  },
+  "best_epoch": 7,
+  "best_metrics": {
+    "accuracy": 1.0,
+    "balanced_accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0,
+    "tn": 6,
+    "fp": 0,
+    "fn": 0,
+    "tp": 4,
+    "loss": 0.10344568267464638
+  },
+  "train_class_counts": {
+    "0": 44,
+    "1": 42
+  },
+  "val_class_counts": {
+    "0": 6,
+    "1": 4
+  },
+  "classification_report": "              precision    recall  f1-score   support\n\n      normal       1.00      1.00      1.00         6\n      drowsy       1.00      1.00      1.00         4\n\n    accuracy                           1.00        10\n   macro avg       1.00      1.00      1.00        10\nweighted avg       1.00      1.00      1.00        10\n"
+}

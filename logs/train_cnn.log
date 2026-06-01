@@ -1,0 +1,45 @@
+2026-06-01 16:48:39,233 | INFO | CNN train samples=2560 val=288 class_counts={1: 673, 3: 640, 0: 646, 2: 601}
+2026-06-01 16:48:39,233 | INFO | Class names: ['closed_eye', 'no_yawn', 'open_eye', 'yawn']
+2026-06-01 16:48:39,233 | INFO | Class weights: [0.9890875220298767, 0.9494064450263977, 1.063145637512207, 0.9983602166175842]
+2026-06-01 16:49:58,821 | INFO | Epoch 001 | train_loss=0.4304 train_f1=0.8534 | val_loss=0.2034 val_f1=0.9757
+2026-06-01 16:49:58,843 | INFO | Da luu weights/cnn_best.pth
+2026-06-01 16:51:22,661 | INFO | Epoch 002 | train_loss=0.2236 train_f1=0.9680 | val_loss=0.1828 val_f1=0.9826
+2026-06-01 16:51:22,678 | INFO | Da luu weights/cnn_best.pth
+2026-06-01 16:52:51,308 | INFO | Epoch 003 | train_loss=0.1946 train_f1=0.9793 | val_loss=0.1523 val_f1=0.9931
+2026-06-01 16:52:51,329 | INFO | Da luu weights/cnn_best.pth
+2026-06-01 16:54:33,170 | INFO | Epoch 004 | train_loss=0.1911 train_f1=0.9824 | val_loss=0.1501 val_f1=0.9931
+2026-06-01 16:54:33,196 | INFO | Da luu weights/cnn_best.pth
+2026-06-01 16:56:09,732 | INFO | Epoch 005 | train_loss=0.1773 train_f1=0.9844 | val_loss=0.1485 val_f1=0.9931
+2026-06-01 16:56:09,732 | INFO | Val F1 khong cai thien. Patience 1/10
+2026-06-01 16:57:33,066 | INFO | Epoch 006 | train_loss=0.1783 train_f1=0.9867 | val_loss=0.1477 val_f1=0.9965
+2026-06-01 16:57:33,088 | INFO | Da luu weights/cnn_best.pth
+2026-06-01 16:59:03,683 | INFO | Epoch 007 | train_loss=0.1684 train_f1=0.9906 | val_loss=0.1441 val_f1=0.9965
+2026-06-01 16:59:03,706 | INFO | Da luu weights/cnn_best.pth
+2026-06-01 17:00:36,404 | INFO | Epoch 008 | train_loss=0.1632 train_f1=0.9910 | val_loss=0.1527 val_f1=0.9965
+2026-06-01 17:00:36,404 | INFO | Val F1 khong cai thien. Patience 1/10
+2026-06-01 17:02:01,009 | INFO | Epoch 009 | train_loss=0.1715 train_f1=0.9883 | val_loss=0.1561 val_f1=0.9931
+2026-06-01 17:02:01,009 | INFO | Val F1 khong cai thien. Patience 2/10
+2026-06-01 17:03:25,478 | INFO | Epoch 010 | train_loss=0.1618 train_f1=0.9937 | val_loss=0.1396 val_f1=1.0000
+2026-06-01 17:03:25,501 | INFO | Da luu weights/cnn_best.pth
+2026-06-01 17:04:53,616 | INFO | Epoch 011 | train_loss=0.1539 train_f1=0.9957 | val_loss=0.1404 val_f1=1.0000
+2026-06-01 17:04:53,616 | INFO | Val F1 khong cai thien. Patience 1/10
+2026-06-01 17:06:33,211 | INFO | Epoch 012 | train_loss=0.1560 train_f1=0.9953 | val_loss=0.1406 val_f1=1.0000
+2026-06-01 17:06:33,211 | INFO | Val F1 khong cai thien. Patience 2/10
+2026-06-01 17:07:59,697 | INFO | Epoch 013 | train_loss=0.1568 train_f1=0.9930 | val_loss=0.1452 val_f1=0.9965
+2026-06-01 17:07:59,697 | INFO | Val F1 khong cai thien. Patience 3/10
+2026-06-01 17:09:24,155 | INFO | Epoch 014 | train_loss=0.1601 train_f1=0.9914 | val_loss=0.1642 val_f1=0.9896
+2026-06-01 17:09:24,155 | INFO | Val F1 khong cai thien. Patience 4/10
+2026-06-01 17:10:48,071 | INFO | Epoch 015 | train_loss=0.1558 train_f1=0.9949 | val_loss=0.1400 val_f1=0.9965
+2026-06-01 17:10:48,072 | INFO | Val F1 khong cai thien. Patience 5/10
+2026-06-01 17:12:10,143 | INFO | Epoch 016 | train_loss=0.1560 train_f1=0.9930 | val_loss=0.1375 val_f1=1.0000
+2026-06-01 17:12:10,143 | INFO | Val F1 khong cai thien. Patience 6/10
+2026-06-01 17:13:34,192 | INFO | Epoch 017 | train_loss=0.1470 train_f1=0.9965 | val_loss=0.1376 val_f1=1.0000
+2026-06-01 17:13:34,192 | INFO | Val F1 khong cai thien. Patience 7/10
+2026-06-01 17:14:57,814 | INFO | Epoch 018 | train_loss=0.1491 train_f1=0.9973 | val_loss=0.1366 val_f1=1.0000
+2026-06-01 17:14:57,814 | INFO | Val F1 khong cai thien. Patience 8/10
+2026-06-01 17:16:20,434 | INFO | Epoch 019 | train_loss=0.1533 train_f1=0.9941 | val_loss=0.1360 val_f1=1.0000
+2026-06-01 17:16:20,434 | INFO | Val F1 khong cai thien. Patience 9/10
+2026-06-01 17:17:45,132 | INFO | Epoch 020 | train_loss=0.1495 train_f1=0.9953 | val_loss=0.1357 val_f1=1.0000
+2026-06-01 17:17:45,132 | INFO | Val F1 khong cai thien. Patience 10/10
+2026-06-01 17:17:45,132 | INFO | Dung som CNN de giam overfitting.
+2026-06-01 17:17:50,105 | INFO | CNN test metrics: {'accuracy': 1.0, 'balanced_accuracy': 1.0, 'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'loss': 0.1350137301181492}

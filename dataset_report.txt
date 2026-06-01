@@ -1,6 +1,6 @@
 DATASET AUDIT REPORT
-Data yaml: D:\HK6_BaiTapVeNhan\DoAn\DeepLearning\Deep2\configs\data.yaml
-Base path: D:\HK6_BaiTapVeNhan\DoAn\DeepLearning\Deep2\driver_drowsiness_Computer_Vision_Model
+Data yaml: D:\DeepLearning\Deep2\configs\data.yaml
+Base path: D:\DeepLearning\Deep2\driver_drowsiness_Computer_Vision_Model
 Classes: eye_closed, eye_open, face, mouth_open
 
 [train]
@@ -39,11 +39,11 @@ Scenario keyword counts: {}
 [Leakage]
 exact_hash: 0
 roboflow_origin: 420
-perceptual_hash: 0
+perceptual_hash: 21
 
 [Warnings]
-- Chua cai opencv-python nen bo qua kiem tra anh loi va perceptual hash.
 - Phat hien anh cung origin Roboflow giua train/valid/test, co nguy co data leakage.
+- Phat hien anh gan trung nhau giua cac split theo perceptual hash.
 - train: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.
 - train: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.
 - train: It mau du lieu 'low_light' trong ten file; can bo sung neu muon robust thuc te.

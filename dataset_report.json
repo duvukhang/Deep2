@@ -1,6 +1,6 @@
 {
-  "data_yaml": "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\configs\\data.yaml",
-  "base_path": "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model",
+  "data_yaml": "D:\\DeepLearning\\Deep2\\configs\\data.yaml",
+  "base_path": "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model",
   "class_names": [
     "eye_closed",
     "eye_open",
@@ -10,16 +10,16 @@
   "num_classes": 4,
   "splits": {
     "train": {
-      "image_dir": "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images",
-      "label_dir": "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\labels",
+      "image_dir": "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images",
+      "label_dir": "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\labels",
       "num_images": 2557,
       "num_labels": 2557,
       "missing_labels": [],
       "missing_labels_count": 0,
       "empty_labels": [
-        "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\labels\\_18_jpg.rf.94047cdc957023ce9fa919a4c90fa72e.txt",
-        "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\labels\\_18_jpg.rf.f8e28f4bf59f88506c408f99c1fa8879.txt",
-        "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\labels\\_91_jpg.rf.154203cded62e10914a295070722b2fa.txt"
+        "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\labels\\_18_jpg.rf.94047cdc957023ce9fa919a4c90fa72e.txt",
+        "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\labels\\_18_jpg.rf.f8e28f4bf59f88506c408f99c1fa8879.txt",
+        "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\labels\\_91_jpg.rf.154203cded62e10914a295070722b2fa.txt"
       ],
       "empty_labels_count": 3,
       "invalid_labels": [],
@@ -44,8 +44,8 @@
       "warnings": []
     },
     "valid": {
-      "image_dir": "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images",
-      "label_dir": "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\labels",
+      "image_dir": "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images",
+      "label_dir": "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\labels",
       "num_images": 288,
       "num_labels": 288,
       "missing_labels": [],
@@ -74,8 +74,8 @@
       "warnings": []
     },
     "test": {
-      "image_dir": "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images",
-      "label_dir": "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\labels",
+      "image_dir": "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images",
+      "label_dir": "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\labels",
       "num_images": 577,
       "num_labels": 577,
       "missing_labels": [],
@@ -105,8 +105,8 @@
     }
   },
   "warnings": [
-    "Chua cai opencv-python nen bo qua kiem tra anh loi va perceptual hash.",
     "Phat hien anh cung origin Roboflow giua train/valid/test, co nguy co data leakage.",
+    "Phat hien anh gan trung nhau giua cac split theo perceptual hash.",
     "train: It mau du lieu 'glasses' trong ten file; can bo sung neu muon robust thuc te.",
     "train: It mau du lieu 'mask' trong ten file; can bo sung neu muon robust thuc te.",
     "train: It mau du lieu 'low_light' trong ten file; can bo sung neu muon robust thuc te.",
@@ -137,84 +137,84 @@
         "count": 129,
         "examples": [
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\94_jpg.rf.382385616e28f93cd313446a2ea48f53.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\94_jpg.rf.1531202b16dc425b602380093bc8498d.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\659_jpg.rf.adeb41a6da3487f972d2f2f320b028e6.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\659_jpg.rf.1f2298e4702e0428f468aa52b479293f.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\316_jpg.rf.dc1d75eb3c4b4c137e3e76cdb9d5ed6c.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\316_jpg.rf.66e53a9be6ce16be640b75bc9f6b673c.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_98_jpg.rf.9574c7a095457206291d21770753d303.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_98_jpg.rf.edb4eae3711e41b4539e7382828db595.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\488_jpg.rf.fc6bb59db5fca77ca44b678378768a26.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\488_jpg.rf.decc67c74fcbe6b524c34b7ca52f1da7.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_351_jpg.rf.d758c0bba291001477433693a8176a95.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_351_jpg.rf.f407912f5425b6c21c6536e8f2eb5ede.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_557_jpg.rf.565a5558afc781d6195d3925f0104e15.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_557_jpg.rf.f533b072341fe85b6acf1b04d2f71617.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_77_jpg.rf.2b158712ccef837780cf351189b2d920.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_77_jpg.rf.195aef49c1fd29db138c7da0c92e8dec.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_598_jpg.rf.f691b6eaba0ff59d2d49cf6cd4486ab9.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_598_jpg.rf.0706bb350b623fd9d3b54fff49c040ec.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\641_jpg.rf.11c5512e1e2f0fd38141bca571d08630.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\641_jpg.rf.90d8f4e383b1f6202554b0bb4caf9c1a.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\6_jpg.rf.a0194acc06d85ca08903dd8ba23e34e9.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\6_jpg.rf.48a56d6ec5e3d649fcd36d226e914971.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\316_jpg.rf.dc1d75eb3c4b4c137e3e76cdb9d5ed6c.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\316_jpg.rf.66e53a9be6ce16be640b75bc9f6b673c.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_57_jpg.rf.b3cd8039752502855253a88fd2aebe92.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_57_jpg.rf.ddf0a6c56c3fab191e016effac25f3e2.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\234_jpg.rf.51c45677c75040826cf1ab488e57cbee.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\234_jpg.rf.bd4c3385fcf01e9f5f7aa8a39c01ac2f.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_605_jpg.rf.912a933a45217ca9061a6802930db090.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_605_jpg.rf.b614dec527251b3274459cd2b8480938.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_476_jpg.rf.3fd331ff9de55d57c6c78d2b2950daad.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_476_jpg.rf.611ebba03113559835464bb7bd255566.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\277_jpg.rf.218e9be483dbc2ba3dbe541e7a9ec321.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\277_jpg.rf.3a5be37f23eacbedd624a9832cc59d9e.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_156_jpg.rf.1078759542b8bdc44193bb8e33d91365.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_156_jpg.rf.90b215bfd7d5e7b30eb057f1573774b9.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_244_jpg.rf.c7d3904699860b7227db0e6a75d76e8b.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_244_jpg.rf.6560742c8834e2ea9ac308684de0e353.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\177_jpg.rf.8f30249ef4e6d5994a609703d06a923f.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\177_jpg.rf.b4360e3bb027ccb3c70807c41307f2ef.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_186_jpg.rf.591e05e9eebf300a763ee57f202fde0e.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_186_jpg.rf.25c49431258017ebdb3e418aaf760b03.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_4_jpg.rf.ec41d8a22f4a3440a8c8c77cf1e191cc.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_4_jpg.rf.a11073b8d0d22d5267c16776d7e191b5.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\461_jpg.rf.21d70d79b54463a51fcf52d7f230cd35.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\461_jpg.rf.af26ae3ecc9ea108f2c9fd354a716ece.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_208_jpg.rf.0fb253505addca2f5eb61750e117fc76.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_208_jpg.rf.ee4cce53bea0678f0e97b8da113aacbb.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\209_jpg.rf.696b76f4cff5b63cd78136453f6a83e7.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\209_jpg.rf.c270ba5ef100cd76b960ba1b244cffce.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\703_jpg.rf.663c9e91f6f0dab5e389efa160308630.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\703_jpg.rf.207942b59ac13d1e3445049beb2a978e.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_92_jpg.rf.24a6045415a4116698c7a46b60b395ff.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_92_jpg.rf.38d8bfe9969c3be3ef3e54ca6a057202.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_632_jpg.rf.3ddd9e98c5840589e7604168ff607693.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_632_jpg.rf.b443a0c6c961174315c211f0a787e9b3.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_4_jpg.rf.ec41d8a22f4a3440a8c8c77cf1e191cc.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_4_jpg.rf.a11073b8d0d22d5267c16776d7e191b5.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_488_jpg.rf.051df8482f7c7fc08b36510ef7b76a73.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_488_jpg.rf.134b55f4b75a749d597283ef883051a3.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_408_jpg.rf.098a63270c59c94fa22acb8cbc488903.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_408_jpg.rf.43ee97e262500adabd0950d4a116b903.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\24_jpg.rf.7184d6633b42288c0337b5e4615a7ac1.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\24_jpg.rf.36bfd50dbe9f371fedc8c0d802222c6b.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_78_jpg.rf.01886cc520838df7c733dbd9164a5de5.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_78_jpg.rf.028780bb3ce34a8d2318492f84c0af21.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_92_jpg.rf.24a6045415a4116698c7a46b60b395ff.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_92_jpg.rf.38d8bfe9969c3be3ef3e54ca6a057202.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_457_jpg.rf.4c1dd541f97a09dd3ff977730d2bcccb.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_457_jpg.rf.fc5e07783e0e5f3337344cd648ece6f6.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_267_jpg.rf.51cb302fa3c6813bb7d38d2359a48872.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_267_jpg.rf.f2a5546f77e3f3a150fb92c607f86b6d.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_36_jpg.rf.a0ad697d1d85803deb23f13d003a9fd6.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_36_jpg.rf.1272c8c450706766093ddcf3a8fcd70b.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\277_jpg.rf.218e9be483dbc2ba3dbe541e7a9ec321.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\277_jpg.rf.3a5be37f23eacbedd624a9832cc59d9e.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_7_jpg.rf.9861b7fad9190b31af3549559caba075.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_7_jpg.rf.fae4b7b483ca9e2f1c607a1ca5280c54.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_36_jpg.rf.a0ad697d1d85803deb23f13d003a9fd6.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_36_jpg.rf.1272c8c450706766093ddcf3a8fcd70b.jpg"
           ]
         ]
       },
@@ -226,84 +226,84 @@
         "count": 257,
         "examples": [
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_201_jpg.rf.3e23260595da7c8082fed9bf938b8c2a.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_201_jpg.rf.59df3bc77e381dc2f95c2fc7837916aa.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\443_jpg.rf.6b2346c25a093beb67317be44f26603c.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\443_jpg.rf.0bd293bd48d3e16e67b1b71912834948.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_626_jpg.rf.e7d6973786e95b9362cb4da6d6753534.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_626_jpg.rf.fb4be85500f21205ce35873cea14eacc.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_533_jpg.rf.98d45353092a520c41d68622b46c05d6.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_533_jpg.rf.9dd11fc845d3cf9ec669b3be8af8f228.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_536_jpg.rf.b705c6c616b52b7cdd8a53469b01b90c.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_536_jpg.rf.31f5d1b7ed3bafe0688baf0036026a8e.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_6_jpg.rf.ca20260551dc94316a1add2c8b8637d5.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_6_jpg.rf.40c2780f227012211796d60051cff433.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_660_jpg.rf.168847ec0244434b66d943eca0f6eac4.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_660_jpg.rf.af996da57ef0fb27b67152a3f5e521a4.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_689_jpg.rf.2e7f8f80b028266e6a9d38ac40805001.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_689_jpg.rf.e5eec94101766541780e690f40ed720f.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_369_jpg.rf.d5dcd6034881bc59c3d305e22fd9a30f.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_369_jpg.rf.f9acdc2ab19316e1d5fa43d213dfef2f.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_358_jpg.rf.73dc0ab2afa51348b7e58e6eedd30aad.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_358_jpg.rf.1436063ee1f81907cca17e5df8872945.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\371_jpg.rf.82fc7049a6e0793123cb4359d924876b.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\371_jpg.rf.b36fe5b8c7e1a0cb5440154304fdd387.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\276_jpg.rf.5a9efe29531abe098640b1628f868212.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\276_jpg.rf.1b62672aa4744f4bae27788df479e677.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_460_jpg.rf.1f1ba0e2d903e82b7ca80cddebee85f3.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_460_jpg.rf.2b6239a07c0626e4947bc20a34633698.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_255_jpg.rf.c00b799dfb30f6a4150e1a901217d402.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_255_jpg.rf.f31e588e66dbc70ce492bb42d49b2b38.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\333_jpg.rf.a15a358620d3ce3091d2c83ebdb64a4d.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\333_jpg.rf.09bfd98530947017ee48c8c6e879e663.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_646_jpg.rf.bda9f8307f5b7fcd8f7a9fdb4a063b8d.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_646_jpg.rf.c278e4c2ebd03b75709864f389ed7d09.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_664_jpg.rf.529779c72c39b3fa00e6ac2b97e10d19.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_664_jpg.rf.500d643775bc12821a23e00295f18720.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\72_jpg.rf.e611ebf0a2d54c008aa482dab49a8652.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\72_jpg.rf.d16e79165896ecc54af97a0706db01c9.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_607_jpg.rf.21a3f4062a4796fc450ad77000e7b2b2.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_607_jpg.rf.e7ec33c23c16e50ccaafc7760d90f8f4.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_161_jpg.rf.8b839aace8c0e1a1fa31e7404531d422.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_161_jpg.rf.c94a8f0f2afb80f5555fac047c14cc10.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\417_jpg.rf.1b7d3feac9678d4aa48afd6633caec8b.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\417_jpg.rf.71b341928dadade72936cf26cd806009.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_619_jpg.rf.b332c925149721e07c862749975d2f55.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_619_jpg.rf.0d2289824ce3bdfcdf66e1140d5fce13.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_579_jpg.rf.22053e2c18476898dfcaca437c91396d.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_579_jpg.rf.600009996b97b67e94500229b1861565.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_9_jpg.rf.a89ed5cd339a605578bf400b3f84dcc4.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_9_jpg.rf.6d6c963f233789641f6a2e9727b6d9e1.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_534_jpg.rf.d126581b0c897ef5f7fd910698c35016.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_534_jpg.rf.eb0ba616fda83e20b4879ccc91cb20ff.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_720_jpg.rf.547f8f5dc637df9e3ba35f906673bdb3.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_720_jpg.rf.3b4080bdfa9856870560289c45b5668a.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_172_jpg.rf.b690434c4fdc75c07ea2f1026fa07eb5.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_172_jpg.rf.b243a19c6e45aa73fb117bcbaaccb21a.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_475_jpg.rf.a0d708f252901a46010cd0613e83fea1.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_475_jpg.rf.aa4c94b444e31f75d36b8f035c7cffd2.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_458_jpg.rf.2ceabedf4ffa9e02c245242bc5fffcae.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_458_jpg.rf.b838a26620deaae37ef6eb34d0ab9ebf.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_604_jpg.rf.a31ab9da631b56af0b917e0856cef7e7.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_604_jpg.rf.a8a8ef913ace4f9a0531205668256d9c.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_255_jpg.rf.c00b799dfb30f6a4150e1a901217d402.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_255_jpg.rf.f31e588e66dbc70ce492bb42d49b2b38.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_593_jpg.rf.2bdb9afbe1de6fcf6dc23dc8153ff108.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_593_jpg.rf.dd14e347263e48279d851a1877cdcce2.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_505_jpg.rf.791c88cefb2bd1619c1ae34fddd768a8.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_505_jpg.rf.b1d12378d6f3017b95f44bbce0df2364.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_531_jpg.rf.e622e0c43a1a6ce4fcdb5c0bb6c77d6f.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_531_jpg.rf.91e8f171cb238add155f71edd960038d.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_693_jpg.rf.6d480b5e1a4f792233cbea101e6a2f92.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_693_jpg.rf.01d1ca1c94acbd48264a883ede36cc2a.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_541_jpg.rf.ca4e1f848658002aaa8685483ce05a7f.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_541_jpg.rf.cf254d3df528cc301e9c77823cc79cdd.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_9_jpg.rf.a89ed5cd339a605578bf400b3f84dcc4.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_9_jpg.rf.6d6c963f233789641f6a2e9727b6d9e1.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_518_jpg.rf.b56b0f6c122f97c1a8adc009233beb34.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_518_jpg.rf.b3a00ff58c3f116df2d904a54f2f7659.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_512_jpg.rf.eb89c79f4f33e297fba1ed58d931b26e.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_512_jpg.rf.245515c3cc6d93f4e828d69ba579b09b.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\_126_jpg.rf.46c30bf3ddd9bb2d2b203edc282ba811.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_126_jpg.rf.42967383f3248f19be3c44eac7655e43.jpg"
           ]
         ]
       },
@@ -315,88 +315,191 @@
         "count": 34,
         "examples": [
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_25_jpg.rf.7a104c85301a22f2d6b16aa3caaa0843.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_25_jpg.rf.ab81fff25cac8ec1b49187e685402ff5.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_31_jpg.rf.29535bff1ba5e30d3322b1d4d66a8870.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_31_jpg.rf.e47936559fd5025e2980336a55943b93.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\149_jpg.rf.47130cc7149327ffbabe5b6239d6f89f.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\149_jpg.rf.37c0c2fc72cfb3d2a881035f506db023.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_25_jpg.rf.7a104c85301a22f2d6b16aa3caaa0843.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_25_jpg.rf.ab81fff25cac8ec1b49187e685402ff5.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_479_jpg.rf.1cd2c8243fd7ca7260f021c9135a7615.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_479_jpg.rf.f326285d7ae50038f86954b11d1359a0.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_212_jpg.rf.d34997f29fb64548ff4f769d86a45ef7.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_212_jpg.rf.f26831f31641c97911af59db19cc91e6.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_544_jpg.rf.516ed28a59d4337a9e90b0249d7bff14.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_544_jpg.rf.414cc91f9ba8a1c291e79b26d7313ad3.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_444_jpg.rf.48bebeb39f8a3e915c659ad0d737cc87.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_444_jpg.rf.bcb90b93510546ef8cfd65b457a92ca3.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\490_jpg.rf.fb4965d12924333a2e85ba67b1811cb1.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\490_jpg.rf.52ca85294343730589f9e174166def16.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_193_jpg.rf.e36a7deb6992707a97a4a25d165a9711.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_193_jpg.rf.4bdf0e374b9e7fc11b740fe885bf91f5.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_239_jpg.rf.1ab3dd1bccb634c16be4154e5c5a5a60.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_239_jpg.rf.ad7dd6db1d4d4429a992fd603c217fc1.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_300_jpg.rf.f11ba774d80dccc03561b51734f3d06f.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_300_jpg.rf.a910dbdcb933471754aca8d735e6a0a4.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_709_jpg.rf.d6229479c61d5ea9f984b5a259e95e84.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_709_jpg.rf.086c66a344aabe75274690edf4a80ac0.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_95_jpg.rf.d83f4bde6c097ad20a7b81b63fe34f0c.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_95_jpg.rf.daa2a951281a0b999d1565ee921896ae.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_618_jpg.rf.e34a825514c824452d8b8a9d5f6616d6.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_618_jpg.rf.da6147ff111a8c9f66cb4df351cce95f.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_479_jpg.rf.1cd2c8243fd7ca7260f021c9135a7615.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_479_jpg.rf.f326285d7ae50038f86954b11d1359a0.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_514_jpg.rf.c546b0b532e54e6b436a760b438b7900.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_514_jpg.rf.9b5ba00a19a156587356ed5975ddb5fb.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_514_jpg.rf.c546b0b532e54e6b436a760b438b7900.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_514_jpg.rf.9b5ba00a19a156587356ed5975ddb5fb.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_122_jpg.rf.49a98c35e22956a29bde6bd502ace8d5.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_122_jpg.rf.2d96f349b7d8a2ce8f4b9781058a078b.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\77_jpg.rf.a943c4fd3ca1526e9d388404b767ebe1.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\77_jpg.rf.1fb4350fe9971ec64e53ca9de5e5db7c.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\378_jpg.rf.b7e15a1f5b92ec1bf86a2596fadd8ee2.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\378_jpg.rf.8000caf8dbf598d4fb4244f3951db680.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_411_jpg.rf.e05b9fa8bf56f7db6baa0cc0f8c2a623.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_411_jpg.rf.544d4411c592c1fce39ed17a97433144.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_310_jpg.rf.26784129962d104f44646703d9ddc893.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_310_jpg.rf.67ca0e72d8323f692e102ccee0fb6fd3.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_290_jpg.rf.9f2c462f6e12f2d24db158d908c19a64.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_290_jpg.rf.384ee338b9af5fa4a762e9f30c47abec.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_290_jpg.rf.9f2c462f6e12f2d24db158d908c19a64.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_290_jpg.rf.384ee338b9af5fa4a762e9f30c47abec.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\149_jpg.rf.47130cc7149327ffbabe5b6239d6f89f.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\149_jpg.rf.37c0c2fc72cfb3d2a881035f506db023.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_333_jpg.rf.c096b58f181b07b7522999e4e0c90a90.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_333_jpg.rf.cea085a31b0cd2f5d57416aa8b25528e.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_239_jpg.rf.1ab3dd1bccb634c16be4154e5c5a5a60.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_239_jpg.rf.ad7dd6db1d4d4429a992fd603c217fc1.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_196_jpg.rf.3f64ced9b1b61c8ca1c23815f6ea68f0.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_196_jpg.rf.24d1372c7003c67c5a842deb1f053085.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_618_jpg.rf.e34a825514c824452d8b8a9d5f6616d6.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_618_jpg.rf.da6147ff111a8c9f66cb4df351cce95f.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_95_jpg.rf.d83f4bde6c097ad20a7b81b63fe34f0c.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_95_jpg.rf.daa2a951281a0b999d1565ee921896ae.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\54_jpg.rf.3849c5e5b9c7697721bf67224401271f.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\54_jpg.rf.b762f4991e993c05b9a6e388e96e3b46.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_193_jpg.rf.e36a7deb6992707a97a4a25d165a9711.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_193_jpg.rf.4bdf0e374b9e7fc11b740fe885bf91f5.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_310_jpg.rf.26784129962d104f44646703d9ddc893.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_310_jpg.rf.67ca0e72d8323f692e102ccee0fb6fd3.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_425_jpg.rf.06f6901b5af805bcd3fb654b6b7384d2.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_425_jpg.rf.09b313b32686fabacab166b5470f1bfa.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_361_jpg.rf.d6329de97f50c7838d87b7c2e2d115e2.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_361_jpg.rf.f2dc7f14d87ad4cb3fcdda1b9ca3edef.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\481_jpg.rf.a0784ea57912fcfa65ef6ca4fb98ccd5.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\481_jpg.rf.3d767ffb827c04710ab650b3dd99bb2a.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\378_jpg.rf.b7e15a1f5b92ec1bf86a2596fadd8ee2.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\378_jpg.rf.8000caf8dbf598d4fb4244f3951db680.jpg"
           ],
           [
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_150_jpg.rf.74d194f283bdb93aa9ac5ab6f8ffdffc.jpg",
-            "D:\\HK6_BaiTapVeNhan\\DoAn\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_150_jpg.rf.e9eaa8b1a5765c19dbf5e98201832e3c.jpg"
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\_196_jpg.rf.3f64ced9b1b61c8ca1c23815f6ea68f0.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\_196_jpg.rf.24d1372c7003c67c5a842deb1f053085.jpg"
           ]
         ]
       }
     ],
-    "perceptual_hash": []
+    "perceptual_hash": [
+      {
+        "splits": [
+          "train",
+          "valid"
+        ],
+        "count": 10,
+        "examples": [
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\1630_jpg.rf.422045fe4eae8e2d8c2cc377109b664a.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\1642_jpg.rf.3a9145f46bed263f185c872c89c01b52.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\2536_jpg.rf.e3800f458f448f9e499380580548feb7.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\2539_jpg.rf.b4d253d22fca0ae9748cad79aea4736b.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\76_jpg.rf.31e37177e952beb50fc372c02eaa8d4f.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\77_jpg.rf.a943c4fd3ca1526e9d388404b767ebe1.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\118_jpg.rf.c1cafae07a4417cd19237c0d4c988d4a.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\117_jpg.rf.cfd4f9e380d3a108479b14363232df66.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\693_jpg.rf.3b2aff68f2e8213eb3d06900ada6b4df.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\688_jpg.rf.9c2b1c88f888decc5872fe3c610c8ff1.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\22_jpg.rf.2860423014d542a9cbf729b91d8680d7.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\21_jpg.rf.679f9abcc1cc82b6ead089566a755647.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\73_jpg.rf.254c251dd38f73ea3491409d054c0a45.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\71_jpg.rf.2df2df695095bb4c1e6f0f7d76d4ee72.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\107_jpg.rf.be35394df15ebfcd9c6b095846af706f.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\106_jpg.rf.0c3e381098cd140e412f0d19e5400330.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\29_jpg.rf.96e550f1a19f495575c957595c4e08c0.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\27_jpg.rf.316afcf91d82758b12daebd3a543558b.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\138_jpg.rf.3a61d2563fe57506950c52e3971120e9.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\valid\\images\\137_jpg.rf.402798ebde453ffead030dcf2d5d532d.jpg"
+          ]
+        ]
+      },
+      {
+        "splits": [
+          "train",
+          "test"
+        ],
+        "count": 11,
+        "examples": [
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\259_jpg.rf.759abe2188e838e51e344d85784a8bf1.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\258_jpg.rf.7306aa599e8bf3d2794799a335370e07.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\2011_jpg.rf.261948482b5247c33932fbfc4b229033.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\2013_jpg.rf.818b19989ad3242a501c30a38bd0b016.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\371_jpg.rf.82fc7049a6e0793123cb4359d924876b.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\373_jpg.rf.a2385c7c5902b28676fbb4abed53a4c3.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\400_jpg.rf.99fd0df61b2d925205c17dba9cd27069.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\398_jpg.rf.fabc754d32d160ca05aa4fef73fca306.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\189_jpg.rf.5dfb7030c68bb77ce51e7c6a82c4ef2e.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\187_jpg.rf.c38f46f1e6ebe255f712106202be163e.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\2067_jpg.rf.94a3d90022f0c1a33c842d1b60f9da92.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\2068_jpg.rf.a20c9867e03d2916924bc28f23781970.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\10_jpg.rf.830b9bf98989b4b7d129321f1e7b4996.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\13_jpg.rf.5ace871f9d510d80d80c7e62a625cf47.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\1031_jpg.rf.836c09ed474ddb200e946ed26f8a2284.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\1032_jpg.rf.97e16a59bb2d772f8b8920c721c8ad05.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\1508_jpg.rf.32ca7aa39797567d7384402db43986c8.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\1507_jpg.rf.4e9e3f03d37f1674427fe2ddf1c74191.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\1573_jpg.rf.ecfe90cc3a3e9818e3fff1bd125a9290.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\1574_jpg.rf.9379e5f6af7166eb26b23544f9d68000.jpg"
+          ],
+          [
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\train\\images\\101_jpg.rf.1f5ec77baf7a42d777f6b54db433072b.jpg",
+            "D:\\DeepLearning\\Deep2\\driver_drowsiness_Computer_Vision_Model\\test\\images\\102_jpg.rf.8bcbd47321609db45b7b6247f040bea0.jpg"
+          ]
+        ]
+      }
+    ]
   }
 }

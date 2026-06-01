@@ -334,7 +334,7 @@ def infer_label_from_name(path):
 def infer_label_from_yolo_label(image_path, image_dir, class_names):
     label_path = image_to_label_path(image_path, image_dir, label_dir_from_image_dir(image_dir))
     parsed = parse_label_file(label_path, len(class_names))
-    drowsy_classes = {"eye_closed", "mouth_open"}
+    drowsy_classes = {"eye_closed", "closed_eye", "mouth_open", "yawn"}
     for instance in parsed["instances"]:
         class_id = int(instance["class_id"])
         if class_id < len(class_names) and class_names[class_id] in drowsy_classes:
@@ -468,7 +468,12 @@ def process_image_dataset(args, yolo_model, cnn_model, transform, geometry, devi
                 logging.warning("Bo qua anh loi: %s", image_path)
                 continue
 
-            label = resolve_label(image_path, args.label, image_dir, class_names)
+            try:
+                label = resolve_label(image_path, args.label, image_dir, class_names)
+            except ValueError as exc:
+                logging.warning("Bo qua anh khong suy ra duoc label: %s | %s", image_path, exc)
+                continue
+
             spatial, geo, detections = process_frame(
                 frame,
                 yolo_model,
